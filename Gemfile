@@ -8,4 +8,5 @@ gem "pry"
 gem "rake"
 gem "require_all"
 gem "faker"
+gem 'tty-prompt'
 gem 'json'
