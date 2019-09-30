@@ -8,3 +8,4 @@ gem "pry"
 gem "rake"
 gem "require_all"
 gem "faker"
+gem 'json'
