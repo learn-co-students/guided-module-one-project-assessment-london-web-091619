@@ -39,6 +39,8 @@ end
     def view_comments
         user_comments = @current_user.map_comment_names
         selection = @@prompt.select("Select a comment to edit/delete", user_comments)
+        selected_comment = Comment.find_by(comment_content: selection)
+        manage_comments(selected_comment)
     end
 
 
@@ -58,6 +60,19 @@ end
             Comment.create(comment_content: comment, user_id: @current_user.id, article_id: @article.id )
         end
     end
+    
+
+    def manage_comments(comment)
+        selection=@@prompt.select("How would you like to manage your comment?","Update comment", "Delete comment")
+        if selection == "Update comment"
+            comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
+            comment.update(comment_content: comment_update)
+        elsif selection == "Delete comment"
+            comment.destroy
+        end
+    end
+
+
 
     #input from user: what they would like to comment
     #use active record to create a new instance of comment andassign the user id and comment to it
