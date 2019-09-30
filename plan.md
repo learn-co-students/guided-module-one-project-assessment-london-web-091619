@@ -1,5 +1,5 @@
 Create models:done
-Create db:
-link api:
+Create db:done
 create cli:
+link api:
 stretch goals:
