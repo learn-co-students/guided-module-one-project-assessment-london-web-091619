@@ -10,6 +10,8 @@ class Api
 
 
     def formatdata
-        topheadlines.map{|article| {title: article["title"], content: article["content"]}}
+        topheadlines.map{|article| {name: article["title"], content: article["content"]}}
     end
+
+    
 end
