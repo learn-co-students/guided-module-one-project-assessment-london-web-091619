@@ -101,7 +101,7 @@ class Cli
 
     def input_new_article
         article_name = @@prompt.ask("Name your article: ")
-        article_content = @@prompt.multiline("Write your article: ")
+        article_content = @@prompt.ask("Write your article: ")
         create_new_article(article_name, article_content)
     end
 
@@ -113,7 +113,27 @@ class Cli
 
     def select_users_articles
         selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names)
-        article = find_article_by_name(selection)
+        user_articles_menu(selection)
+    end
+
+    def user_articles_menu(article)
+        selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
+        article = Article.find_by(name: article)
+        
+        case selection
+        when "Go to article"
+            go_to_article(article)
+        when "Update article"
+            article_update = @@prompt.ask("article: ", value: article.content)
+            article.update(content: article_update)
+            user_articles_menu(article.name)
+        when "Delete article"
+            article.destroy
+            select_users_articles
+        end
+    end
+    
+    def go_to_article(article)
         print_article(article)
         comment_menu(article)
     end
@@ -154,7 +174,7 @@ class Cli
     end
 
     def comment_menu(article)
-     selection=@@prompt.select("would you like to exit or make a comment?","Back","Make Comment") 
+     selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
         if selection=="Back"  
             main_menu
         end
@@ -197,5 +217,4 @@ class Cli
 
     #input from user: what they would like to comment
     #use active record to create a new instance of comment andassign the user id and comment to it
-    
-end
+    end
