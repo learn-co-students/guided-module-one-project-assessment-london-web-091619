@@ -28,12 +28,17 @@ class CLI
   end
 
   def main_menu
+    refresh_user
+
     options = ["Review a restaurant"]
     options << "Delete one of your reviews" unless @user.reviews.empty?
     options << "Exit"
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
     menu_selection(selection)
-    # add logic to this method to send user to their chosen function
+  end
+
+  def refresh_user
+    @user = User.find(@user.id)
   end
 
   def menu_selection(selection)
