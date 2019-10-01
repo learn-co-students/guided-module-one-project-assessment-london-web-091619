@@ -76,6 +76,7 @@ class CLI
   def write_review(restaurant_name)
     restaurant = Restaurant.find_by(name: restaurant_name)
     rating = @@prompt.ask("How many stars would you give #{restaurant.name}? (out of 5)")
+    # use tty prompt slider for rating
     content = @@prompt.ask("Please write a review:")
 
     Review.create(
@@ -88,6 +89,7 @@ class CLI
 
   def delete_review
     chosen_review = choose_user_review
+    binding.pry
     #"are you sure?"
     #delete
 
@@ -96,11 +98,6 @@ class CLI
 
   def choose_user_review
     # todo: two-step review choice (first choose restaurant, then choose review)
-    restaurant_name =
-      @@prompt.select("Which review do you want to delete?", @user.restaurant_names)
-
-    chosen_restaurant = Restaurant.find_by(name: restaurant_name)
-
-    @user.review_select_options(chosen_restaurant) # should return array of prettified strings for @@prompt.select for each review of chosen restaurant
+    @@prompt.select("Which review would you like to delete?", @user.reviews_for_prompt)
   end
 end

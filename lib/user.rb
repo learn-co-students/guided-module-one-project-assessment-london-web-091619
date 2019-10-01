@@ -6,8 +6,12 @@ class User < ActiveRecord::Base
     restaurants.map(&:name)
   end
 
-  def review_select_options(restaurant)
-    reviews.select(restaurant: restaurant)
-    binding.pry
+  def reviews_for_prompt
+    reviews.map do |review|
+      "Restaurant: #{review.restaurant.name}
+  Rating: #{review.rating}
+  Content: #{review.content}\n"
+      # binding.pry
+    end
   end
 end
