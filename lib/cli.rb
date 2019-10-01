@@ -3,6 +3,61 @@ class Cli
     @@prompt = TTY::Prompt.new
 
     #Log in with username/password
+    def welcome
+        print_logo(0.1)
+        puts "Welcome to tl;dr news service!"
+    selection = @@prompt.select("Choose an option", "Log In", "Sign Up")
+    case selection
+    when "Log In"
+        login
+    when "Sign Up"
+        sign_up_prompt
+    end
+    end
+
+    def sign_up_prompt
+        print_logo
+        user_name = @@prompt.ask("Enter a unique username: ")
+        password = @@prompt.mask("Enter a secure password: ")
+        sign_up(user_name, password)
+    end
+
+    def sign_up(user_name, password)
+        if !check_for_duplicate_usernames(user_name)
+            User.create(user_name: user_name, password: password)
+            validate(user_name, password)
+        end
+            puts "That username is taken!"
+            sign_up
+    end
+
+    def check_for_duplicate_usernames(user_name)
+        User.find_by(user_name: user_name) 
+    end
+
+    def print_logo(sleep_value = 0)
+        clear_console
+        puts"        ███      ▄█       ████████▄     ▄████████" 
+    sleep(sleep_value)
+    puts"    ▀█████████▄ ███       ███   ▀███   ███    ███" 
+    sleep(sleep_value)
+    puts"       ▀███▀▀██ ███       ███    ███   ███    ███"
+    sleep(sleep_value) 
+    puts"        ███   ▀ ███       ███    ███  ▄███▄▄▄▄██▀" 
+    sleep(sleep_value)
+    puts"        ███     ███       ███    ███ ▀▀███▀▀▀▀▀"
+    sleep(sleep_value)   
+    puts"        ███     ███       ███    ███ ▀███████████"
+    sleep(sleep_value) 
+    puts"        ███     ███▌    ▄ ███   ▄███   ███    ███"
+    sleep(sleep_value) 
+    puts"       ▄████▀   █████▄▄██ ████████▀    ███    ███"
+    sleep(sleep_value) 
+    puts"                ▀                      ███    ███"
+    sleep(sleep_value) 
+    end
+
+
     def login
         username = @@prompt.ask("Please enter your username: ")
         password = @@prompt.ask("Please enter your password: ")
@@ -12,7 +67,6 @@ class Cli
     def validate(username, password)
         set_current_user(username, password)
         if @current_user
-            puts "you are logged in"
             main_menu
         else 
             puts "We could not find your user! Please try again" 
@@ -29,7 +83,7 @@ class Cli
     #- View comments
 
     def main_menu
-        clear_console
+        print_logo
        selection= @@prompt.select("Choose an option please!", "choose an article","View comments", "Exit")
         if selection == "choose an article"
             article = select_article
@@ -45,7 +99,7 @@ class Cli
     end
 
     def view_comments
-        clear_console
+        print_logo
         user_comments = @current_user.map_comment_names
         user_comments << "Main Menu"
         selection = @@prompt.select("Select a comment to edit/delete", user_comments)
@@ -62,10 +116,10 @@ class Cli
 
 
     def select_article
-        clear_console
+        print_logo
         selection = @@prompt.select("Select an article please!", Article.map_names)
         article = Article.find_by(name: selection)
-        clear_console
+        print_logo
         puts article.show_article
         article
     end
@@ -87,7 +141,7 @@ class Cli
     
 
     def manage_comments(comment)
-        clear_console
+        print_logo
         selection = ""
         selection=@@prompt.select("How would you like to manage your comment?","Update comment", "Delete comment")
         if selection == "Update comment"
