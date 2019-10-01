@@ -82,17 +82,40 @@ class Cli
 
     def main_menu
         print_logo
-       selection= @@prompt.select("Choose an option please!", "choose an article","View comments", "Exit")
-        if selection == "choose an article"
+       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Exit")
+        case selection 
+        when "choose an article"
             article = select_article
             comment_menu(article)
-        elsif selection == "View comments"
+        when "View comments"
             view_comments
             main_menu
-        #write article  
-        elsif selection == "Exit"
+        when "Write an article"
+            input_new_article
+        when "View your articles"
+            select_users_articles
+        when "Exit"
             puts "Goodbye!"
         end
+    end
+
+    def input_new_article
+        article_name = @@prompt.ask("Name your article: ")
+        article_content = @@prompt.multiline("Write your article: ")
+        create_new_article(article_name, article_content)
+    end
+
+    def create_new_article(article_name, article_content)
+        new_article = Article.create(name: article_name, content: article_content, user_id: @current_user.id)
+        print_article(new_article)
+        comment_menu(new_article)
+    end
+
+    def select_users_articles
+        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names)
+        article = find_article_by_name(selection)
+        print_article(article)
+        comment_menu(article)
     end
 
     def view_comments
@@ -106,7 +129,8 @@ class Cli
             view_comments
         end
     end
-    
+
+
     def is_main_menu?(selection)
         selection == "Main Menu"
     end
@@ -115,8 +139,12 @@ class Cli
     def select_article
         print_logo
         selection = @@prompt.select("Select an article please!", Article.map_names)
-        article = Article.find_by(name: selection)
+        article = find_article_by_name(selection)
         print_article(article)
+    end
+
+    def find_article_by_name(selection)
+        Article.find_by(name: selection)
     end
 
     def print_article(article)
