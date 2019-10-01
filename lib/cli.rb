@@ -42,11 +42,12 @@ class CLI
   end
 
   def menu_selection(selection)
-    if selection.eql?("Exit")
+    case selection
+    when "Exit"
       puts "Thank you for using our app!"
-    elsif selection.eql?("Review a restaurant")
+    when "Review a restaurant"
       review_restaurant
-    elsif selection.eql?("Delete one of your reviews")
+    when "Delete one of your reviews"
       delete_review
     end
   end
