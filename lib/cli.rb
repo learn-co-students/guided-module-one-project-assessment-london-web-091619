@@ -26,9 +26,7 @@ class Cli
         if !check_for_duplicate_usernames(user_name)
             User.create(user_name: user_name, password: password)
             validate(user_name, password)
-        end
-            puts "That username is taken!"
-            sign_up
+        else sign_up_prompt end
     end
 
     def check_for_duplicate_usernames(user_name)
