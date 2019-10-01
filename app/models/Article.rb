@@ -18,11 +18,12 @@ class Article < ActiveRecord::Base
 
     def prepare_article
         "
-        #{self.name}
-        #{self.content}
-        
+    Title: #{self.name}
+    Content: #{self.content}
+        --------
         Comments
-        "
+        --------
+"
     end
 
     def show_article

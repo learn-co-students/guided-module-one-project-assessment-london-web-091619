@@ -86,7 +86,6 @@ class Cli
         if selection == "choose an article"
             article = select_article
             comment_menu(article)
-            main_menu
         elsif selection == "View comments"
             view_comments
             main_menu
@@ -117,6 +116,10 @@ class Cli
         print_logo
         selection = @@prompt.select("Select an article please!", Article.map_names)
         article = Article.find_by(name: selection)
+        print_article(article)
+    end
+
+    def print_article(article)
         print_logo
         puts article.show_article
         article
@@ -125,10 +128,12 @@ class Cli
     def comment_menu(article)
      selection=@@prompt.select("would you like to exit or make a comment?","Back","Make Comment") 
         if selection=="Back"  
-            return
+            main_menu
         end
         if selection=="Make Comment"
             make_comment(article)
+            print_article(article)
+            comment_menu(article)
         end 
     end
 
@@ -141,11 +146,17 @@ class Cli
     def manage_comments(comment)
         print_logo
         selection = ""
-        selection=@@prompt.select("How would you like to manage your comment?","Update comment", "Delete comment")
-        if selection == "Update comment"
+        selection=@@prompt.select("How would you like to manage your comment?","Go to article","Update comment", "Delete comment")
+        case selection
+        when "Go to article"
+            
+            article = Article.find_by(id: comment.article_id)
+            print_article(article)
+            comment_menu(article.name)
+        when "Update comment"
             comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
             comment.update(comment_content: comment_update)
-        elsif selection == "Delete comment"
+        when "Delete comment"
             comment.destroy
         end
     end
