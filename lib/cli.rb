@@ -16,9 +16,11 @@ class CLI
 
   def login
     email = @@prompt.ask("Please enter your email address:")
-    User.find_by(email: email)
-    # check if a user was actually found
-    # if not, ask them to register or add a different email
+    return User.find_by(email: email) if User.find_by(email: email)
+
+    failure_message = "We couldn't find a user with that email address. Would you like to try again or register a new account?"
+    response = @@prompt.select(failure_message, "Try again", "Register new account")
+    response.eql?("Try again") ? login : register
   end
 
   def register
@@ -95,6 +97,7 @@ class CLI
 
   def delete_review
     chosen_review = choose_user_review("Which review would you like to delete?")
+    # add option to go back to main menu?
     confirm_message = "Are you sure you want to delete this review for #{chosen_review.restaurant.name}"
     if @@prompt.yes?(confirm_message)
       chosen_review.destroy
