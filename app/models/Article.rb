@@ -34,6 +34,7 @@ class Article < ActiveRecord::Base
     end
 
     def find_article_comments
-        Comment.all.select{|comment| comment.article_id == self.id} 
+        Comment.all.select{|comment| comment.article_id == self.id}
     end
+
 end
