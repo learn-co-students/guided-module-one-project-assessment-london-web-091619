@@ -2,7 +2,7 @@ require_relative '../config/environment'
 
 cli = Cli.new
 
-cli.login
+cli.welcome
 #create instance of cli
 #call methods
 
