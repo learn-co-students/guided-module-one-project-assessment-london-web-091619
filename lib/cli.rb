@@ -33,7 +33,7 @@ class CLI
     refresh_user
 
     options = ["Review a restaurant"]
-    options << "Delete one of your reviews" unless @user.reviews.empty?
+    options += ["Delete one of your reviews", "Update one of your reviews"] unless @user.reviews.empty?
     options << "Exit"
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
     menu_selection(selection)
@@ -53,6 +53,8 @@ class CLI
       update_review
     when "Delete one of your reviews"
       delete_review
+    when "Update one of your reviews"
+      update_review
     end
   end
 
@@ -93,6 +95,11 @@ class CLI
 
   def update_review
     chosen_review = choose_user_review("Which review would you like to update?")
+    chosen_review.rating = @@prompt.ask("How many stars would you give #{chosen_review.restaurant.name}? (out of 5)")
+    chosen_review.content = @@prompt.ask("Please write a new review:")
+    chosen_review.save
+
+    main_menu
   end
 
   def delete_review
