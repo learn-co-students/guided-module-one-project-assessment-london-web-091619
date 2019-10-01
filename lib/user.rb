@@ -7,10 +7,13 @@ class User < ActiveRecord::Base
   end
 
   def reviews_for_prompt
-    reviews.map do |review|
-      "Restaurant: #{review.restaurant.name}
+    reviews.each_with_object({}) do |review, obj|
+
+      string = "Restaurant: #{review.restaurant.name}
   Rating: #{review.rating}
   Content: #{review.content}\n"
+
+      obj[string] = review
       # binding.pry
     end
   end

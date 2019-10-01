@@ -47,6 +47,8 @@ class CLI
       puts "Thank you for using our app!"
     when "Review a restaurant"
       review_restaurant
+    when "Update a review"
+      update_review
     when "Delete one of your reviews"
       delete_review
     end
@@ -87,17 +89,22 @@ class CLI
     )
   end
 
+  def update_review
+    chosen_review = choose_user_review("Which review would you like to update?")
+  end
+
   def delete_review
-    chosen_review = choose_user_review
-    binding.pry
-    #"are you sure?"
-    #delete
+    chosen_review = choose_user_review("Which review would you like to delete?")
+    confirm_message = "Are you sure you want to delete this review for #{chosen_review.restaurant.name}"
+    if @@prompt.yes?(confirm_message)
+      chosen_review.destroy
+    end
 
     main_menu
   end
 
-  def choose_user_review
+  def choose_user_review(message)
     # todo: two-step review choice (first choose restaurant, then choose review)
-    @@prompt.select("Which review would you like to delete?", @user.reviews_for_prompt)
+    @@prompt.select(message, @user.reviews_for_prompt)
   end
 end
