@@ -15,4 +15,24 @@ class Article < ActiveRecord::Base
             article.name 
         end
     end
+
+    def prepare_article
+        "
+        #{self.name}
+        #{self.content}
+        
+        Comments
+        "
+    end
+
+    def show_article
+        comments = find_article_comments
+        article = prepare_article
+        comments.each {|comment| article += "#{comment.show_user}: #{comment.comment_content}\n"}
+        article
+    end
+
+    def find_article_comments
+        Comment.all.select{|comment| comment.article_id == self.id} 
+    end
 end
