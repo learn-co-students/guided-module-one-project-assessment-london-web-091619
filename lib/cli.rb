@@ -3,34 +3,15 @@ class CLI
   @@prompt = TTY::Prompt.new
 
   def run
-    response = greeting
+    response = greeting # greets user, asks whether register or login
 
-    @user = response.eql?("Log in") ? login : register
+    @user = response.eql?("Log in") ? login : register # handles user's choice
 
-    p @user
-
-    menu_selection = main_menu
-    if menu_selection.eql?("Review a restaurant")
-      choice = choose_restaurant
-      if choice.eql?("Add a new restaurant")
-        new_restaurant = create_restaurant
-        write_review(new_restaurant.name)
-      else
-        write_review(choice)
-      end
-    elsif menu_selection.eql?("Delete one of your reviews")
-      delete_review
-    end
+    main_menu
   end
 
   def greeting
     @@prompt.select("Hello!", "Log in", "Register")
-  end
-
-  def register
-    email = @@prompt.ask("Please enter your email address:")
-    name = @@prompt.ask("What should we call you?")
-    User.create(name: name, email: email)
   end
 
   def login
@@ -40,11 +21,42 @@ class CLI
     # if not, ask them to register or add a different email
   end
 
+  def register
+    email = @@prompt.ask("Please enter your email address:")
+    name = @@prompt.ask("What should we call you?")
+    User.create(name: name, email: email)
+  end
+
   def main_menu
-    # options = ["Review a restaurant", "Delete one of your reviews"]
     options = ["Review a restaurant"]
-    options << "Delete one of your reviews" unless @user.restaurants.empty?
-    @@prompt.select("How can we help you today?", options)
+    options << "Delete one of your reviews" unless @user.reviews.empty?
+    options << "Exit"
+    selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
+    menu_selection(selection)
+    # add logic to this method to send user to their chosen function
+  end
+
+  def menu_selection(selection)
+    if selection.eql?("Exit")
+      puts "Thank you for using our app!"
+    elsif selection.eql?("Review a restaurant")
+      review_restaurant
+    elsif selection.eql?("Delete one of your reviews")
+      delete_review
+    end
+  end
+
+  def review_restaurant
+    choice = choose_restaurant
+
+    if choice.eql?("Add a new restaurant")
+      new_restaurant = create_restaurant
+      write_review(new_restaurant.name)
+    else
+      write_review(choice)
+    end
+
+    main_menu
   end
 
   def choose_restaurant
@@ -69,18 +81,18 @@ class CLI
   end
 
   def delete_review
-    choice = choose_user_review
-    puts choice
+    chosen_restaurant = choose_user_review
+    puts @user.reviews.find_by(restaurant: chosen_restaurant).content
     #review details are shown
     #"are you sure?"
     #delete
+
+    main_menu
   end
 
   def choose_user_review
     restaurant_name =
       @@prompt.select("Which review do you want to delete?", @user.restaurant_names)
-    #list all of the user’s reviews
-    #user can choose a review
     Restaurant.find_by(name: restaurant_name)
   end
 end
