@@ -86,9 +86,7 @@ class CLI
   end
 
   def delete_review
-    chosen_restaurant = choose_user_review
-    puts @user.reviews.find_by(restaurant: chosen_restaurant).content
-    #review details are shown
+    chosen_review = choose_user_review
     #"are you sure?"
     #delete
 
@@ -96,8 +94,12 @@ class CLI
   end
 
   def choose_user_review
+    # todo: two-step review choice (first choose restaurant, then choose review)
     restaurant_name =
       @@prompt.select("Which review do you want to delete?", @user.restaurant_names)
-    Restaurant.find_by(name: restaurant_name)
+
+    chosen_restaurant = Restaurant.find_by(name: restaurant_name)
+
+    @user.review_select_options(chosen_restaurant) # should return array of prettified strings for @@prompt.select for each review of chosen restaurant
   end
 end
