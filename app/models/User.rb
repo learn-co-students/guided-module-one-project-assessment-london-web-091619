@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-    has_many :comments
+    has_many :comments, dependent: :destroy #No current functionality to delete a user, so this will do nothing.
     has_many :articles
 
     def map_comment_names
