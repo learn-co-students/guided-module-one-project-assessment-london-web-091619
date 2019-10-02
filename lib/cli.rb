@@ -1,4 +1,3 @@
-# coding: utf-8
 class CLI
   @@prompt = TTY::Prompt.new
 
@@ -13,6 +12,8 @@ class CLI
   def greeting
     @@prompt.select("Hello!", "Log in", "Register")
   end
+
+  # one method that takes in email address and checks if account exists, then auto logs in or prompts for name to register
 
   def login
     email = @@prompt.ask("Please enter your email address:")
@@ -32,7 +33,7 @@ class CLI
   def main_menu
     refresh_user
 
-    options = ["Review a restaurant"]
+    options = ["Search for a restaurant", "Review a restaurant"]
     options += ["Delete one of your reviews", "Update one of your reviews"] unless @user.reviews.empty?
     options << "Exit"
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
@@ -47,6 +48,8 @@ class CLI
     case selection
     when "Exit"
       puts "Thank you for using our app!"
+    when "Search for a restaurant"
+      search_for_restaurant
     when "Review a restaurant"
       review_restaurant
     when "Update a review"
@@ -56,6 +59,10 @@ class CLI
     when "Update one of your reviews"
       update_review
     end
+  end
+
+  def search_for_restaurant
+    puts "works!"
   end
 
   def review_restaurant
