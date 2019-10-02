@@ -15,6 +15,18 @@ end
   )
 end
 
+Restaurant.all.each do |restaurant| 
+  2.times do 
+    Review.create(
+    restaurant_id: restaurant.id,
+    user_id: User.all.sample.id,
+    rating: rand(1.0..5.0).round(1),
+    content: Faker::Restaurant.review
+  )
+  end
+end
+  
+
 50.times do
   Review.create(
     restaurant_id: Restaurant.all.sample.id,
@@ -22,4 +34,6 @@ end
     rating: rand(1.0..5.0).round(1),
     content: Faker::Restaurant.review
   )
+
+
 end

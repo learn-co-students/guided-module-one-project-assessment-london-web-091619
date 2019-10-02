@@ -47,8 +47,13 @@ class CLI
   def restaurant_menu
     options = ["Read reviews", "Exit"]
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
-    read_customer_reviews if selection.eql?("Read reviews")
-      puts "Thank you for using our app!"
+     if selection.eql?("Read reviews") 
+        read_customer_reviews
+     else 
+    
+        puts "Thank you for using our app!"
+     end
+     
   end
 
   def refresh_user
