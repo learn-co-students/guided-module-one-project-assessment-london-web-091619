@@ -35,8 +35,5 @@ class API
     end
     direction_list.pop
     direction_list << "Bon appétit!"
-
-    # diretion_string = ""
-    # direction
   end
 end

@@ -60,7 +60,6 @@ class CLI
       restaurant = @@prompt.select("", restaurants)
       api_restaurant_action(restaurant)
     else
-      # keyboard mash in search breaks app
       puts "Sorry, no restaurants found for that query. Please try again."
       search_for_restaurant
     end
