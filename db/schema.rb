@@ -19,6 +19,8 @@ ActiveRecord::Schema.define(version: 2019_09_30_141000) do
   end
 
   create_table "orders", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "gelato_id"
     t.string "order_time"
     t.string "status"
     t.integer "total"

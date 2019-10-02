@@ -1,4 +1,4 @@
-require "bundler"
+require "bundler/setup"
 Bundler.require
 
 ActiveRecord::Base.establish_connection(
@@ -6,6 +6,6 @@ ActiveRecord::Base.establish_connection(
   database: "db/gelato.db",
 )
 
-ActiveRecord::Base.logger = nil
+ ActiveRecord::Base.logger = nil
 
 require_all "lib"
