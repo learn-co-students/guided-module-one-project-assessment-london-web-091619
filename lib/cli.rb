@@ -46,6 +46,7 @@ class CLI
     end
 
     def main_menu
+      system('clear')
       # 
       puts "Hello there!"
       menu_choice = @@prompt.select("What can we do for you today?", "Create New Order", "Edit Order", "Cancel Order", "My Orders", "About/Promo")
@@ -58,7 +59,7 @@ class CLI
       when "Edit Order"
         # edit method
         edit_order
-        puts "editing order..."
+        puts "Your order has been edited"
         where_to_next
       when "Cancel Order"
         # delete method
@@ -66,12 +67,12 @@ class CLI
         puts "Your order has been cancelled"
         where_to_next
       when "My Orders" 
+        puts "These are your orders!"
         my_orders
-        puts "these are your orders!"
         where_to_next
       when "About/Promo"
         #post about us
-        puts "we are cool"
+        about_us
         where_to_next
       else
         puts "you seem to have broken our application, thank you!"
@@ -119,6 +120,10 @@ class CLI
       user_orders = Order.all.select {|order| order.user_id == @current_user.id }
       p user_orders
     end
+
+    def about_us
+      puts "Here at K&M, we pride ourselves on our ability to provide you with the highest \nquality Gelato at the very best price. Our unique boutique blend of rich and chewy \nchocolate brownies combined with decadent caramel swirls will leave you begging to \nknow the recipe. But wait, there's more! Sign up and order with us today or spend £20\nor more in store to recieve a 10% discount off your total order cost. \n\nSo what are you waiting for? Order now!"
+    end  
 
     def remove_stock(servings)
       # 
@@ -182,6 +187,7 @@ class CLI
     end
 
     def good_bye
+      system('clear')
       puts "Thank you for visiting K&M Gelato! Come back soon!"
     end
 
