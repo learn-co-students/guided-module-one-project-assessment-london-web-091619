@@ -21,7 +21,7 @@ class CLI
     failure_message = "We couldn't find a customer account with that email address. Would you like to try again or register a new account?"
     response = @@prompt.select(failure_message, "Try again", "Register new account")
 
-    response.eql?("Register new account") ? register_user(email) : login
+    response.eql?("Register new account") ? register_user(email) : user_login
   end
 
   def restaurant_login
@@ -47,13 +47,13 @@ class CLI
   def restaurant_menu
     options = ["Read reviews", "Exit"]
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
-     if selection.eql?("Read reviews") 
+     if selection.eql?("Read reviews")
         read_customer_reviews
-     else 
-    
+     else
+
         puts "Thank you for using our app!"
      end
-     
+
   end
 
   def refresh_user
