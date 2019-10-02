@@ -182,7 +182,6 @@ class CLI
 
     def where_to_next
       response = @@prompt.select("Is there anything else we can do for you today?", "Yes, please!", "No, thank you!")
-
       response == "Yes, please!" ? main_menu : good_bye
     end
 
@@ -192,20 +191,12 @@ class CLI
     end
 
 
-    
 
-
-
-
-
-  
 end
 
 # ADMIN USER
-# exit option at any point
 # grey out/dont display options that arent yet available
-# hash passwords
 # discont service
 # many flavours
 # pending time period (2 mins)
-# VALIDATION (mvp)
+# display my orders in a prettier way
