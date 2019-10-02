@@ -1,6 +1,6 @@
 class Cli
     @@prompt = TTY::Prompt.new
-
+    #####################################
     #Welcome
     def welcome
         print_logo(0.1)
@@ -14,6 +14,7 @@ class Cli
     end
     end
 
+    ###
     #Sign up 
     def sign_up_prompt
         print_logo
@@ -33,10 +34,12 @@ class Cli
         else sign_up_prompt end
     end
 
+    #Check duplicate usernames
     def check_for_duplicate_usernames(user_name)
         User.find_by(user_name: user_name) 
     end
     
+    ###
     #Login
     def login
         username = @@prompt.ask("Please enter your username: ")
@@ -44,6 +47,7 @@ class Cli
         validate(username, password)
     end
 
+    #validate
     def validate(username, password)
         set_current_user(username, password)
         if @current_user
@@ -54,10 +58,12 @@ class Cli
         end
     end
 
+    #set current username
     def set_current_user(username, password)
         @current_user = User.find_by(user_name: username, password: password)
     end
-        
+    
+    #####################################
     #Main Menu 
     def main_menu
         print_logo
@@ -78,6 +84,7 @@ class Cli
         end
     end
 
+    ###
     #Choose an article
     def select_article
         print_logo
@@ -86,6 +93,7 @@ class Cli
         print_article(article)
     end
 
+    ##
     #Comment Menu
     def comment_menu(article)
         selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
@@ -108,6 +116,7 @@ class Cli
         Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
     end
 
+    #####################################
     #View comments
     def view_comments
         if @current_user.comments != []
@@ -126,6 +135,7 @@ class Cli
         main_menu
     end
 
+    ###
     #Manage comments
     def manage_comments(comment)
         print_logo
@@ -144,6 +154,7 @@ class Cli
         end
     end
 
+    #####################################
     #Write an article
     def input_new_article
         article_name = @@prompt.ask("Name your article: ")
@@ -159,6 +170,7 @@ class Cli
         go_to_article(new_article)
     end
 
+    #####################################
      #View users articles
      def select_users_articles
         if @current_user.articles != []
@@ -173,6 +185,7 @@ class Cli
         main_menu
     end
 
+    ###
     #User articles Menu
     def user_articles_menu(article)
         selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
