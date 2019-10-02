@@ -1,6 +1,6 @@
 class Article < ActiveRecord::Base
     has_many :comments
-    has_many :users, through: :comments
+    belongs_to :user# fix with join class between user/article (for writing their own articles)
    
     #used to seed database
     def self.populate

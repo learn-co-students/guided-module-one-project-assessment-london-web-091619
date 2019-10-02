@@ -25,7 +25,8 @@ class Cli
     def sign_up(user_name, password)
         if !check_for_duplicate_usernames(user_name)
             User.create(user_name: user_name, password: password)
-            validate(user_name, password)
+            set_current_user(user_name, password)
+            main_menu
         else sign_up_prompt end
     end
 
@@ -107,13 +108,21 @@ class Cli
 
     def create_new_article(article_name, article_content)
         new_article = Article.create(name: article_name, content: article_content, user_id: @current_user.id)
-        print_article(new_article)
-        comment_menu(new_article)
+        refresh_user
+        go_to_article(new_article)
     end
 
     def select_users_articles
+        
+        if @current_user.articles != []
+            
         selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names)
         user_articles_menu(selection)
+        else
+            print_logo
+            @@prompt.keypress("\nYou do not have any articles!")
+            main_menu
+        end
     end
 
     def user_articles_menu(article)
@@ -126,9 +135,11 @@ class Cli
         when "Update article"
             article_update = @@prompt.ask("article: ", value: article.content)
             article.update(content: article_update)
+            refresh_user
             user_articles_menu(article.name)
         when "Delete article"
             article.destroy
+            refresh_user
             select_users_articles
         end
     end
@@ -169,6 +180,7 @@ class Cli
 
     def print_article(article)
         print_logo
+        binding.pry
         puts article.show_article
         article
     end
@@ -186,11 +198,12 @@ class Cli
     end
 
     def make_comment(article)
+        
         comment=@@prompt.ask("enter your comment: ")
         Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
+        refresh_user
     end
     
-
     def manage_comments(comment)
         print_logo
         selection = ""
@@ -204,8 +217,10 @@ class Cli
         when "Update comment"
             comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
             comment.update(comment_content: comment_update)
+            refresh_user
         when "Delete comment"
             comment.destroy
+            refresh_user
         end
     end
 
@@ -213,7 +228,9 @@ class Cli
         system "clear"
     end
 
-
+    def refresh_user
+        @current_user = User.find(@current_user.id)
+    end
 
     #input from user: what they would like to comment
     #use active record to create a new instance of comment andassign the user id and comment to it
