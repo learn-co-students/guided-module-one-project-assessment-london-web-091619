@@ -1,9 +1,13 @@
+require 'colorize'
+
+
+
 class CLI
   @@prompt = TTY::Prompt.new
   @@api = API.new
 
   def run
-    puts "Hello!"
+    puts "WELCOME TO FOODEE".center(100).colorize(:red).bold
     user_type = find_user_type
 
     @user = user_type.eql?("Customer") ? user_login : restaurant_login
