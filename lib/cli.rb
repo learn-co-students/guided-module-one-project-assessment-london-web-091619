@@ -107,6 +107,12 @@ class CLI
 
   def get_directions(lat_long)
     directions = @@api.direction_list(lat_long)
+
+    unless directions
+      puts "\nWe don't have directions for that location, sorry!\n\n"
+      search_for_restaurant
+    end
+
     puts ""
     directions.each do |direction|
       puts direction

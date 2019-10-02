@@ -28,8 +28,11 @@ class API
     origin_lat_long = "51.5203575,-0.0875923"
     url = "http://www.mapquestapi.com/directions/v2/route?key=#{mapquest_key}&from=#{origin_lat_long}&to=#{lat_long}"
     response = HTTParty.get(url)
+    return false if response["info"]["statuscode"].eql?(402)
+
     directions = JSON.parse(response.body)["route"]["legs"].first
     direction_list = [directions["origNarrative"]]
+
     direction_list += directions["maneuvers"].map do |maneuver|
       maneuver["narrative"]
     end
