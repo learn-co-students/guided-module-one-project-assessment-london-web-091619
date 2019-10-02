@@ -8,7 +8,6 @@ class User < ActiveRecord::Base
 
   def reviews_for_prompt
     reviews.each_with_object({}) do |review, obj|
-
       string = "Restaurant: #{review.restaurant.name}
   Rating: #{review.rating}
   Content: #{review.content}\n"
