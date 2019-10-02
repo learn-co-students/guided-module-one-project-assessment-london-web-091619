@@ -5,12 +5,24 @@ class MusicApp
     # Runs the app, welcomes user and prompts user to log in, if successful, shows main menu, if not, prompts re-try
     def run
         clear_terminal
-        puts "Welcome to Moodsic! Discover songs you really like!"
+        puts "
+@@@@@@@@@@    @@@@@@    @@@@@@   @@@@@@@    @@@@@@   @@@   @@@@@@@  
+@@@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@   @@@  @@@@@@@@  
+@@! @@! @@!  @@!  @@@  @@!  @@@  @@!  @@@  !@@       @@!  !@@       
+!@! !@! !@!  !@!  @!@  !@!  @!@  !@!  @!@  !@!       !@!  !@!       
+@!! !!@ @!@  @!@  !@!  @!@  !@!  @!@  !@!  !!@@!!    !!@  !@!       
+!@!   ! !@!  !@!  !!!  !@!  !!!  !@!  !!!   !!@!!!   !!!  !!!       
+!!:     !!:  !!:  !!!  !!:  !!!  !!:  !!!       !:!  !!:  :!!       
+:!:     :!:  :!:  !:!  :!:  !:!  :!:  !:!      !:!   :!:  :!:       
+:::     ::   ::::: ::  ::::: ::   :::: ::  :::: ::    ::   ::: :::  
+ :      :     : :  :    : :  :   :: :  :   :: : :    :     :: :: : 
+        ".light_blue
+        puts "Welcome to Moodsic! Discover songs you really like!".light_blue.bold
         @current_user = login
         if @current_user 
             main_menu
         else
-            puts "Ooops, we couldn't find you! Let's start your music journey again!"
+            puts "Ooops, we couldn't find you! Let's start your music journey again!".light_red
             run
         end
     end
@@ -64,7 +76,6 @@ class MusicApp
 
     # Allows the user to create a new playlist
     def create_playlist
-        clear_terminal
         @playlist_title = @@prompt.ask("Your playlist title should be: ")
         user_id = @current_user.id
         @user_playlist = Playlist.create(user_id: user_id, title: @playlist_title)
@@ -73,7 +84,6 @@ class MusicApp
     
     # Allows the user to save the songs to the newly created playlist
     def save_songs
-        clear_terminal
         songs_instances = @songs_array.map { |title| Song.find_by(title: title) }
         songs_instances.each { |song| PlaylistSong.create(playlist_id: @user_playlist.id, song_id: song.id) }
         puts "Wooohooo! You successfully created your playlist #{@playlist_title}!"
@@ -82,10 +92,9 @@ class MusicApp
 
     # Allows the user to view their playlists (if they are having any)
     def show_playlists
-        clear_terminal
         @playlist_list = @current_user.all_playlist_titles
         if @current_user.all_playlist_titles.empty?
-            puts "You don't have any playlists (yet). Find new songs to create a playlist with them!"
+            puts "You don't have any playlists (yet). Find new songs to create a playlist with them!".light_red
             find_new_songs
         else
             puts @playlist_list
@@ -112,7 +121,6 @@ class MusicApp
 
     # Allows the user to delete playlist
     def delete_playlist
-        clear_terminal
         chosen_playlist = @@prompt.select("Which one of your playlists do you want to delete?", @current_user.all_playlist_titles)
         playlist_to_delete = Playlist.find_by(title: chosen_playlist)
         playlist_to_delete.destroy
