@@ -63,19 +63,15 @@ class CLI
   end
 
   def search_for_restaurant
-    query = @@prompt.ask("Which restaurant are you looking for?")
+    query = @@prompt.ask("What are you looking for?")
     restaurants = @@api.search_by_name(query)
-    restaurant = @@prompt.select("", restaurants)
-
-    # require 'pry'; binding.pry
-
-    api_restaurant_action(restaurant)
-
-    # puts JSON.parse(response.body)["restaurants"].first["restaurant"]["name"]
-
-    # foo = JSON.parse(response.body)["restaurants"].first(10)
-    # require 'pry'; binding.pry
-
+    if restaurants
+      restaurant = @@prompt.select("", restaurants)
+      api_restaurant_action(restaurant)
+    else
+      puts "Sorry, no restaurants found for that query. Please try again."
+      search_for_restaurant
+    end
   end
 
   def api_restaurant_action(restaurant)
@@ -84,10 +80,19 @@ class CLI
     longitude = location["longitude"]
     lat_long = latitude + "," + longitude
 
-    require 'pry'; binding.pry
-
     choice = @@prompt.select("What would you like to do?", "Get directions", "Go back to main menu")
-    choice.eql?("Get directions") ? get_directions(location) : main_menu
+    choice.eql?("Get directions") ? get_directions(lat_long) : main_menu
+  end
+
+  def get_directions(lat_long)
+    directions = @@api.direction_list(lat_long)
+    puts ""
+    directions.each do |direction|
+      puts direction
+    end
+    puts ""
+    @@prompt.select("", "Thanks")
+    main_menu
   end
 
   def review_restaurant
