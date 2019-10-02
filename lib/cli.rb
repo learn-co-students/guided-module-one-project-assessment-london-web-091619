@@ -1,5 +1,6 @@
 class CLI
   @@prompt = TTY::Prompt.new
+  @@api = API.new
 
   def run
     response = greeting # greets user, asks whether register or login
@@ -62,7 +63,10 @@ class CLI
   end
 
   def search_for_restaurant
-    puts "works!"
+    query = @@prompt.ask("Which restaurant are you looking for?")
+    response = @@api.search_by_name(query)
+
+    puts JSON.parse(response.body)["restaurants"].first["restaurant"]["name"]
   end
 
   def review_restaurant
