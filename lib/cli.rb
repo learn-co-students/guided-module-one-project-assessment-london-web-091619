@@ -3,18 +3,10 @@ class CLI
   @@api = API.new
 
   def run
-    response = greeting # greets user, asks whether register or login
-
-    @user = response.eql?("Log in") ? login : register # handles user's choice
-
+    puts "Hello!"
+    @user = login
     main_menu
   end
-
-  def greeting
-    @@prompt.select("Hello!", "Log in", "Register")
-  end
-
-  # one method that takes in email address and checks if account exists, then auto logs in or prompts for name to register
 
   def login
     email = @@prompt.ask("Please enter your email address:")
@@ -22,11 +14,10 @@ class CLI
 
     failure_message = "We couldn't find a user with that email address. Would you like to try again or register a new account?"
     response = @@prompt.select(failure_message, "Try again", "Register new account")
-    response.eql?("Try again") ? login : register
+    response.eql?("Try again") ? login : register(email)
   end
 
-  def register
-    email = @@prompt.ask("Please enter your email address:")
+  def register(email)
     name = @@prompt.ask("What should we call you?")
     User.create(name: name, email: email)
   end
