@@ -1,7 +1,3 @@
-require 'colorize'
-
-
-
 class CLI
   @@prompt = TTY::Prompt.new
   @@api = API.new
