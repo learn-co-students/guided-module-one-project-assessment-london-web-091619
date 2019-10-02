@@ -1,5 +1,5 @@
 class Article < ActiveRecord::Base
-    has_many :comments
+    has_many :comments, dependent: :destroy
     belongs_to :user# fix with join class between user/article (for writing their own articles)
    
     #used to seed database
@@ -35,6 +35,10 @@ class Article < ActiveRecord::Base
 
     def find_article_comments
         Comment.all.select{|comment| comment.article_id == self.id}
+    end
+
+    def self.find_article_by_name(selection)
+        find_by(name: selection)
     end
 
 end

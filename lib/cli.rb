@@ -1,8 +1,7 @@
-#create cli class
 class Cli
     @@prompt = TTY::Prompt.new
 
-    #Log in with username/password
+    #Welcome
     def welcome
         print_logo(0.1)
         puts "Welcome to tl;dr news service!"
@@ -15,13 +14,17 @@ class Cli
     end
     end
 
+    #Sign up 
     def sign_up_prompt
         print_logo
+
         user_name = @@prompt.ask("Enter a unique username: ")
         password = @@prompt.mask("Enter a secure password: ")
+
         sign_up(user_name, password)
     end
 
+    #Sign up
     def sign_up(user_name, password)
         if !check_for_duplicate_usernames(user_name)
             User.create(user_name: user_name, password: password)
@@ -33,7 +36,181 @@ class Cli
     def check_for_duplicate_usernames(user_name)
         User.find_by(user_name: user_name) 
     end
+    
+    #Login
+    def login
+        username = @@prompt.ask("Please enter your username: ")
+        password = @@prompt.mask("Please enter your password: ")
+        validate(username, password)
+    end
 
+    def validate(username, password)
+        set_current_user(username, password)
+        if @current_user
+            main_menu
+        else 
+            puts "We could not find your user! Please try again" 
+            login
+        end
+    end
+
+    def set_current_user(username, password)
+        @current_user = User.find_by(user_name: username, password: password)
+    end
+        
+    #Main Menu 
+    def main_menu
+        print_logo
+       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Exit")
+        case selection 
+        when "choose an article"
+            article = select_article
+            comment_menu(article)
+        when "View comments"
+            view_comments
+            main_menu
+        when "Write an article"
+            input_new_article
+        when "View your articles"
+            select_users_articles
+        when "Exit"
+            abort("Goodbye!")
+        end
+    end
+
+    #Choose an article
+    def select_article
+        print_logo
+        selection = @@prompt.select("Select an article please!", Article.map_names)
+        article = Article.find_article_by_name(selection)
+        print_article(article)
+    end
+
+    #Comment Menu
+    def comment_menu(article)
+        selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
+           if selection=="Back"  
+               main_menu
+           end
+           if selection=="Make Comment"
+               make_comment(article)
+               refresh_user
+               print_article(article)
+               comment_menu(article)
+               
+           end 
+       end
+
+    #Make comment
+    def make_comment(article)
+        comment=@@prompt.ask("enter your comment: ")
+        refresh_user
+        Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
+    end
+
+    #View comments
+    def view_comments
+        if @current_user.comments != []
+            print_logo
+            user_comments = @current_user.map_comment_names
+            selection = @@prompt.select("Select a comment to edit/delete", user_comments << "Main menu")
+            if !is_main_menu?(selection)
+                selected_comment = Comment.find_by(comment_content: selection)
+                manage_comments(selected_comment)
+                view_comments
+            end
+        else
+            print_logo
+            @@prompt.keypress("\nYou do not have any comments!")
+        end
+        main_menu
+    end
+
+    #Manage comments
+    def manage_comments(comment)
+        print_logo
+        selection=@@prompt.select("How would you like to manage your comment?","Go to article","Update comment", "Delete comment")
+        case selection
+        when "Go to article"
+            print_article(comment.article)
+            comment_menu(comment.article)
+        when "Update comment"
+            comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
+            comment.update(comment_content: comment_update)
+            refresh_user
+        when "Delete comment"
+            comment.destroy
+            refresh_user
+        end
+    end
+
+    #Write an article
+    def input_new_article
+        article_name = @@prompt.ask("Name your article: ")
+        article_content = @@prompt.ask("Write your article: ")
+        refresh_user
+        create_new_article(article_name, article_content)
+    end
+
+    #Create Article
+    def create_new_article(article_name, article_content)
+        new_article = Article.create(name: article_name, content: article_content, user_id: @current_user.id)
+        refresh_user
+        go_to_article(new_article)
+    end
+
+     #View users articles
+     def select_users_articles
+        if @current_user.articles != []
+        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
+            if !is_main_menu?(selection)
+            user_articles_menu(selection)
+            end
+        else
+            print_logo
+            @@prompt.keypress("\nYou do not have any articles!")
+        end
+        main_menu
+    end
+
+    #User articles Menu
+    def user_articles_menu(article)
+        selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
+        article = Article.find_by(name: article)
+        
+        case selection
+        when "Go to article"
+            go_to_article(article)
+        when "Update article"
+            article_update = @@prompt.ask("article: ", value: article.content)
+            article.update(content: article_update)
+            refresh_user
+            user_articles_menu(article.name)
+        when "Delete article"
+            article.destroy
+            refresh_user
+            select_users_articles
+        end
+    end
+
+    #Go to article
+    def go_to_article(article)
+        print_article(article)
+        comment_menu(article)
+    end
+
+    #Misc methods
+    #Clears console, called on screen refresh
+    def clear_console
+        system "clear"
+    end
+
+    #Refresh user, called on crud actions for active records sake
+    def refresh_user
+        @current_user = User.find(@current_user.id)
+    end
+
+    #Print logo, called on every menu screen
     def print_logo(sleep_value = 0)
         clear_console
         puts"        ███      ▄█       ████████▄     ▄████████" 
@@ -56,187 +233,18 @@ class Cli
     sleep(sleep_value) 
     end
 
-
-    def login
-        username = @@prompt.ask("Please enter your username: ")
-        password = @@prompt.mask("Please enter your password: ")
-        validate(username, password)
-    end
-
-    def validate(username, password)
-        set_current_user(username, password)
-        if @current_user
-            main_menu
-        else 
-            puts "We could not find your user! Please try again" 
-            login
-        end
-    end
-
-    def set_current_user(username, password)
-        @current_user = User.find_by(user_name: username, password: password)
-    end
-        
-    #menu 
-    #- choose article from top-headline
-    #- View comments
-
-    def main_menu
-        print_logo
-       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Exit")
-        case selection 
-        when "choose an article"
-            article = select_article
-            comment_menu(article)
-        when "View comments"
-            view_comments
-            main_menu
-        when "Write an article"
-            input_new_article
-        when "View your articles"
-            select_users_articles
-        when "Exit"
-            abort("Goodbye!")
-        end
-    end
-
-    def input_new_article
-        article_name = @@prompt.ask("Name your article: ")
-        article_content = @@prompt.ask("Write your article: ")
-        refresh_user
-        create_new_article(article_name, article_content)
-    end
-
-    def create_new_article(article_name, article_content)
-        new_article = Article.create(name: article_name, content: article_content, user_id: @current_user.id)
-        refresh_user
-        go_to_article(new_article)
-    end
-
-    def select_users_articles
-        
-        if @current_user.articles != []
-        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
-            if !is_main_menu?(selection)
-            user_articles_menu(selection)
-            end
-        else
-            print_logo
-            @@prompt.keypress("\nYou do not have any articles!")
-        end
-        main_menu
-    end
-    
-    
-
-    def user_articles_menu(article)
-        selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
-        article = Article.find_by(name: article)
-        
-        case selection
-        when "Go to article"
-            go_to_article(article)
-        when "Update article"
-            article_update = @@prompt.ask("article: ", value: article.content)
-            article.update(content: article_update)
-            refresh_user
-            user_articles_menu(article.name)
-        when "Delete article"
-            article.destroy
-            refresh_user
-            select_users_articles
-        end
-    end
-    
-    def go_to_article(article)
-        print_article(article)
-        comment_menu(article)
-    end
-
-    def view_comments
-        if @current_user.comments != []
-            print_logo
-            user_comments = @current_user.map_comment_names
-            selection = @@prompt.select("Select a comment to edit/delete", user_comments << "Main menu")
-            if !is_main_menu?(selection)
-                selected_comment = Comment.find_by(comment_content: selection)
-                manage_comments(selected_comment)
-                view_comments
-            end
-        else
-            print_logo
-            @@prompt.keypress("\nYou do not have any comments!")
-        end
-        main_menu
-    end
-
-
+    #Check selection for main_menu
     def is_main_menu?(selection)
         selection == "Main menu"
     end
 
-
-    def select_article
-        print_logo
-        selection = @@prompt.select("Select an article please!", Article.map_names)
-        article = find_article_by_name(selection)
-        print_article(article)
-    end
-
-    def find_article_by_name(selection)
-        Article.find_by(name: selection)
-    end
-
+    #Print article
     def print_article(article)
         print_logo
         puts article.show_article
         article
     end
 
-    def comment_menu(article)
-     selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
-        if selection=="Back"  
-            main_menu
-        end
-        if selection=="Make Comment"
-            make_comment(article)
-            refresh_user
-            print_article(article)
-            comment_menu(article)
-            
-        end 
-    end
-
-    def make_comment(article)
-        comment=@@prompt.ask("enter your comment: ")
-        refresh_user
-        Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
-    end
-    
-    def manage_comments(comment)
-        print_logo
-        selection=@@prompt.select("How would you like to manage your comment?","Go to article","Update comment", "Delete comment")
-        case selection
-        when "Go to article"
-            print_article(comment.article)
-            comment_menu(comment.article)
-        when "Update comment"
-            comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
-            comment.update(comment_content: comment_update)
-            refresh_user
-        when "Delete comment"
-            comment.destroy
-            refresh_user
-        end
-    end
-
-    def clear_console
-        system "clear"
-    end
-
-    def refresh_user
-        @current_user = User.find(@current_user.id)
-    end
 
     #input from user: what they would like to comment
     #use active record to create a new instance of comment andassign the user id and comment to it
