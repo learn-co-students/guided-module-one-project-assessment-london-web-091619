@@ -14,7 +14,7 @@ class API
   end
 
   def restaurants_for_prompt(response)
-    return false if response.body.eql?("\n")
+    return false if response.body.eql?("\n") || JSON.parse(response.body)["restaurants"].empty?
 
     JSON.parse(response.body)["restaurants"].each_with_object({}) do |restaurant, obj|
       name = restaurant["restaurant"]["name"]
