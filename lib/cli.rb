@@ -4,7 +4,7 @@ class CLI
 
   def run
     puts ""
-    puts "WELCOME TO FOODEE".center(35).colorize(:red).bold
+    puts "🍕 WELCOME TO FOODEE 🍕".center(34).colorize(:red).bold
     puts ""
     user_type = find_user_type
 
