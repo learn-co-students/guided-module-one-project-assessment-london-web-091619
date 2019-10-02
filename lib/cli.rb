@@ -118,8 +118,7 @@ class CLI
 
   def write_review(restaurant_name)
     restaurant = Restaurant.find_by(name: restaurant_name)
-    rating = @@prompt.ask("How many stars would you give #{restaurant.name}? (out of 5)")
-    # use tty prompt slider for rating
+    rating = @@prompt.slider("Rating", max: 5, min: 0, step: 0.5, default: 2.5, format: "|:slider| %.1f")
     content = @@prompt.ask("Please write a review:")
 
     Review.create(
@@ -132,7 +131,7 @@ class CLI
 
   def update_review
     chosen_review = choose_user_review("Which review would you like to update?")
-    chosen_review.rating = @@prompt.ask("How many stars would you give #{chosen_review.restaurant.name}? (out of 5)")
+    chosen_review.rating = @@prompt.slider("Rating", max: 5, min: 0, step: 0.5, default: 2.5, format: "|:slider| %.1f")
     chosen_review.content = @@prompt.ask("Please write a new review:")
     chosen_review.save
 
