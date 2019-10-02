@@ -64,9 +64,30 @@ class CLI
 
   def search_for_restaurant
     query = @@prompt.ask("Which restaurant are you looking for?")
-    response = @@api.search_by_name(query)
+    restaurants = @@api.search_by_name(query)
+    restaurant = @@prompt.select("", restaurants)
 
-    puts JSON.parse(response.body)["restaurants"].first["restaurant"]["name"]
+    # require 'pry'; binding.pry
+
+    api_restaurant_action(restaurant)
+
+    # puts JSON.parse(response.body)["restaurants"].first["restaurant"]["name"]
+
+    # foo = JSON.parse(response.body)["restaurants"].first(10)
+    # require 'pry'; binding.pry
+
+  end
+
+  def api_restaurant_action(restaurant)
+    location = restaurant["restaurant"]["location"]
+    latitude = location["latitude"]
+    longitude = location["longitude"]
+    lat_long = latitude + "," + longitude
+
+    require 'pry'; binding.pry
+
+    choice = @@prompt.select("What would you like to do?", "Get directions", "Go back to main menu")
+    choice.eql?("Get directions") ? get_directions(location) : main_menu
   end
 
   def review_restaurant
