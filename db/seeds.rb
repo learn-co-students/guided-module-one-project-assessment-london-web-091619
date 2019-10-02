@@ -29,19 +29,7 @@ song14 = Song.create(title: "Sorry", genre: "electro", mood: "sad", artist: "Joe
 song15 = Song.create(title: "Never Change", genre: "electro", mood: "happy", artist: "Don Diablo")
 song16 = Song.create(title: "I Wanna Dance", genre: "electro", mood: "happy", artist: "Jonas Blue") 
 
-# to be passed user_id, title
-playlist1 = Playlist.create()
-playlist2 = Playlist.create()
-playlist3 = Playlist.create()
-playlist4 = Playlist.create()
-playlist5 = Playlist.create()
-playlist6 = Playlist.create()
 
-# to be passed playlist_id, song_id
-joint1 = PlaylistSong.create()
-joint2 = PlaylistSong.create()
-joint3 = PlaylistSong.create()
-joint4 = PlaylistSong.create()
-joint5 = PlaylistSong.create()
-joint6 = PlaylistSong.create()
+
+
 
