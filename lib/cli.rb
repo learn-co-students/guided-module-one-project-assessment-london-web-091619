@@ -59,16 +59,20 @@ class CLI
         # edit method
         edit_order
         puts "editing order..."
+        where_to_next
       when "Cancel Order"
         # delete method
         cancel_order
         puts "Your order has been cancelled"
+        where_to_next
       when "My Orders" 
         my_orders
         puts "these are your orders!"
+        where_to_next
       when "About/Promo"
         #post about us
         puts "we are cool"
+        where_to_next
       else
         puts "you seem to have broken our application, thank you!"
       end
@@ -82,6 +86,38 @@ class CLI
       remove_stock(servings)
       Order.create(user_id: @current_user.id, gelato_id: current_gelato.id, order_time: order_timestamp , status: "pending", total: total, servings: servings)
       stock_control(servings)
+    end
+
+    def edit_order
+      order_to_edit = @@prompt.select("Which order would you like to edit?", pending_orders)
+      servings = @@prompt.ask("How many servings would you like instead?: ")
+      # control max and min order amounts
+      validate_input("from edit", servings.to_i)
+      # add or remove from stock
+      add_stock(order_to_edit.servings)
+      remove_stock(servings)
+      # update total
+      update_total(order_to_edit, servings)
+      # request more stock
+      stock_control(servings)
+      # update order information
+      order_to_edit.servings = servings
+      order_to_edit.save
+    end
+
+    def cancel_order
+      # 
+      cancelled_order = @@prompt.select("Which order would you like to cancel?", pending_orders) 
+      cancelled_order.status = "cancelled"
+      cancelled_order.save
+      add_stock(cancelled_order.servings)
+    end
+
+    def my_orders
+      # 
+      puts "Here are your current orders"
+      user_orders = Order.all.select {|order| order.user_id == @current_user.id }
+      p user_orders
     end
 
     def remove_stock(servings)
@@ -103,49 +139,9 @@ class CLI
       Gelato.find(1)
     end
 
-    def cancel_order
-      # 
-      cancelled_order = @@prompt.select("Which order would you like to cancel?", pending_orders) 
-      cancelled_order.status = "cancelled"
-      cancelled_order.save
-      add_stock(cancelled_order.servings)
-    end
-
-    def my_orders
-      # 
-      puts "Here are your current orders"
-      user_orders = Order.all.select {|order| order.user_id == @current_user.id }
-      p user_orders
-    end
-
     def pending_orders
       # 
       my_orders.select{|order| order.status == "pending"}
-    end
-
-    def edit_order
-      order_to_edit = @@prompt.select("Which order would you like to edit?", pending_orders)
-      servings = @@prompt.ask("How many servings would you like instead?: ")
-      
-      # control max and min order amounts
-      validate_input("from edit", servings.to_i)
-
-      # add or remove from stock
-      add_stock(order_to_edit.servings)
-      remove_stock(servings)
-
-      # request more stock
-      stock_control(servings)
-      
-
-      # update order information
-      order_to_edit.servings = servings
-      order_to_edit.save
-    end
-
-    def order_timestamp
-      # 
-      Time.now.to_s.split(" ")[0..1].join(" ")
     end
 
     def stock_control(servings)
@@ -168,6 +164,25 @@ class CLI
 
     def find_location(location)
       location == "from create" ? create_order : edit_order
+    end
+
+    def update_total(order_to_edit, new_servings)
+      order_to_edit.total = new_servings.to_f * 5
+    end
+    
+    def order_timestamp
+      # 
+      Time.now.to_s.split(" ")[0..1].join(" ")
+    end
+
+    def where_to_next
+      response = @@prompt.select("Is there anything else we can do for you today?", "Yes, please!", "No, thank you!")
+
+      response == "Yes, please!" ? main_menu : good_bye
+    end
+
+    def good_bye
+      puts "Thank you for visiting K&M Gelato! Come back soon!"
     end
 
 
