@@ -6,7 +6,7 @@ class Cli
     def welcome
         print_logo(0.1)
         puts "Welcome to tl;dr news service!"
-    selection = @@prompt.select("Choose an option", "Log In", "Sign Up")
+    selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")
     case selection
     when "Log In"
         login
@@ -59,7 +59,7 @@ class Cli
 
     def login
         username = @@prompt.ask("Please enter your username: ")
-        password = @@prompt.ask("Please enter your password: ")
+        password = @@prompt.mask("Please enter your password: ")
         validate(username, password)
     end
 
@@ -96,13 +96,14 @@ class Cli
         when "View your articles"
             select_users_articles
         when "Exit"
-            puts "Goodbye!"
+            abort("Goodbye!")
         end
     end
 
     def input_new_article
         article_name = @@prompt.ask("Name your article: ")
         article_content = @@prompt.ask("Write your article: ")
+        refresh_user
         create_new_article(article_name, article_content)
     end
 
@@ -115,15 +116,18 @@ class Cli
     def select_users_articles
         
         if @current_user.articles != []
-            
-        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names)
-        user_articles_menu(selection)
+        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
+            if !is_main_menu?(selection)
+            user_articles_menu(selection)
+            end
         else
             print_logo
             @@prompt.keypress("\nYou do not have any articles!")
-            main_menu
         end
+        main_menu
     end
+    
+    
 
     def user_articles_menu(article)
         selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
@@ -150,20 +154,25 @@ class Cli
     end
 
     def view_comments
-        print_logo
-        user_comments = @current_user.map_comment_names
-        user_comments << "Main Menu"
-        selection = @@prompt.select("Select a comment to edit/delete", user_comments)
-        if !is_main_menu?(selection)
-            selected_comment = Comment.find_by(comment_content: selection)
-            manage_comments(selected_comment)
-            view_comments
+        if @current_user.comments != []
+            print_logo
+            user_comments = @current_user.map_comment_names
+            selection = @@prompt.select("Select a comment to edit/delete", user_comments << "Main menu")
+            if !is_main_menu?(selection)
+                selected_comment = Comment.find_by(comment_content: selection)
+                manage_comments(selected_comment)
+                view_comments
+            end
+        else
+            print_logo
+            @@prompt.keypress("\nYou do not have any comments!")
         end
+        main_menu
     end
 
 
     def is_main_menu?(selection)
-        selection == "Main Menu"
+        selection == "Main menu"
     end
 
 
@@ -180,7 +189,6 @@ class Cli
 
     def print_article(article)
         print_logo
-        binding.pry
         puts article.show_article
         article
     end
@@ -192,28 +200,26 @@ class Cli
         end
         if selection=="Make Comment"
             make_comment(article)
+            refresh_user
             print_article(article)
             comment_menu(article)
+            
         end 
     end
 
     def make_comment(article)
-        
         comment=@@prompt.ask("enter your comment: ")
-        Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
         refresh_user
+        Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
     end
     
     def manage_comments(comment)
         print_logo
-        selection = ""
         selection=@@prompt.select("How would you like to manage your comment?","Go to article","Update comment", "Delete comment")
         case selection
         when "Go to article"
-            
-            article = Article.find_by(id: comment.article_id)
-            print_article(article)
-            comment_menu(article.name)
+            print_article(comment.article)
+            comment_menu(comment.article)
         when "Update comment"
             comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
             comment.update(comment_content: comment_update)
