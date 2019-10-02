@@ -187,23 +187,32 @@ class Cli
 
     ###
     #User articles Menu
-    def user_articles_menu(article)
+    def user_articles_menu(article_name)
         selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
-        article = Article.find_by(name: article)
-        
+        article = Article.find_article_by_name(article_name)
         case selection
         when "Go to article"
             go_to_article(article)
         when "Update article"
-            article_update = @@prompt.ask("article: ", value: article.content)
-            article.update(content: article_update)
-            refresh_user
-            user_articles_menu(article.name)
+            update_article(article)
         when "Delete article"
-            article.destroy
-            refresh_user
-            select_users_articles
+            delete_article(article)
         end
+    end
+
+    #update article
+    def update_article(article)
+        article_update = @@prompt.ask("article: ", value: article.content)
+        article.update(content: article_update)
+        refresh_user
+        user_articles_menu(article.name)
+    end
+
+    #delete article
+    def delete_article(article)
+        article.destroy
+        refresh_user
+        select_users_articles
     end
 
     #Go to article
