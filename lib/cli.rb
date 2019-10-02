@@ -5,38 +5,44 @@ class Cli
     def welcome
         print_logo(0.1)
         puts "Welcome to tl;dr news service!"
-    selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")
-    case selection
-    when "Log In"
-        login
-    when "Sign Up"
-        sign_up_prompt
-    end
+        selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")    
+        case selection
+            when "Log In"
+                login
+            when "Sign Up"
+                sign_up_prompt
+        end
     end
 
     ###
     #Sign up 
     def sign_up_prompt
         print_logo
-
         user_name = @@prompt.ask("Enter a unique username: ")
         password = @@prompt.mask("Enter a secure password: ")
-
-        sign_up(user_name, password)
+        validate_sign_up(user_name, password)
     end
 
     #Sign up
-    def sign_up(user_name, password)
+    def validate_sign_up(user_name, password)
         if !check_for_duplicate_usernames(user_name)
-            User.create(user_name: user_name, password: password)
+            create_new_user(user_name, password)
             set_current_user(user_name, password)
             main_menu
-        else sign_up_prompt end
+        else 
+            sign_up_prompt 
+        end
     end
+
+    #Create new user
+    def create_new_user(user_name, password)
+        User.create(user_name: user_name, password: password)
+    end
+
 
     #Check duplicate usernames
     def check_for_duplicate_usernames(user_name)
-        User.find_by(user_name: user_name) 
+    User.find_by(user_name: user_name) 
     end
     
     ###
@@ -97,20 +103,24 @@ class Cli
     #Comment Menu
     def comment_menu(article)
         selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
-           if selection=="Back"  
-               main_menu
-           end
-           if selection=="Make Comment"
-               make_comment(article)
-               refresh_user
-               print_article(article)
-               comment_menu(article)
-               
-           end 
-       end
+        if selection=="Back"  
+            main_menu
+        end
+        if selection=="Make Comment"
+            make_comment_menu(article)
+        end 
+    end
+
+    #make_comment_menu
+    def make_comment_menu(article)
+        make_new_comment(article)
+        refresh_user
+        print_article(article)
+        comment_menu(article)
+    end
 
     #Make comment
-    def make_comment(article)
+    def make_new_comment(article)
         comment=@@prompt.ask("enter your comment: ")
         refresh_user
         Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
@@ -174,7 +184,7 @@ class Cli
      #View users articles
      def select_users_articles
         if @current_user.articles != []
-        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
+            selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
             if !is_main_menu?(selection)
             user_articles_menu(selection)
             end
