@@ -3,7 +3,9 @@ class CLI
   @@api = API.new
 
   def run
-    puts "WELCOME TO FOODEE".center(100).colorize(:red).bold
+    puts ""
+    puts "WELCOME TO FOODEE".center(35).colorize(:red).bold
+    puts ""
     user_type = find_user_type
 
     @user = user_type.eql?("Customer") ? user_login : restaurant_login
@@ -47,13 +49,11 @@ class CLI
   def restaurant_menu
     options = ["Read reviews", "Exit"]
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
-     if selection.eql?("Read reviews")
-        read_customer_reviews
-     else
-
-        puts "Thank you for using our app!"
-     end
-
+    if selection.eql?("Read reviews")
+      read_customer_reviews
+    else
+      puts "Thank you for using our app!"
+    end
   end
 
   def refresh_user
@@ -61,7 +61,6 @@ class CLI
   end
 
   def read_customer_reviews
-    # list reviews for this restaurant
     puts @user.reviews_for_prompt
     @@prompt.select("", "Exit")
     puts "Thank you for using our app!"
@@ -165,9 +164,7 @@ class CLI
     chosen_review = choose_user_review("Which review would you like to delete?")
     # add option to go back to main menu?
     confirm_message = "Are you sure you want to delete this review for #{chosen_review.restaurant.name}"
-    if @@prompt.yes?(confirm_message)
-      chosen_review.destroy
-    end
+    chosen_review.destroy if @@prompt.yes?(confirm_message)
 
     user_menu
   end
