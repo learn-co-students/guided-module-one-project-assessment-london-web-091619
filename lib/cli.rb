@@ -1,4 +1,5 @@
 require "tty-prompt"
+require 'encrypted_strings'
 
 class CLI
   
@@ -31,7 +32,7 @@ class CLI
       password1 = @@prompt.mask("Please enter your Password: ")
       password2 = @@prompt.mask("For security purposes, Please Re-enter your Password: ")
       if password1 == password2
-        User.create(name: fullName, password: password1, address: postalAdd, email: emailAdd)
+        User.create(name: fullName, password: password1.encrypt, address: postalAdd, email: emailAdd)
       end
     end
 
@@ -41,8 +42,7 @@ class CLI
 
       username = @@prompt.ask("Please enter your username: ")
       password = @@prompt.mask("Please enter your password: ")
-
-      User.find_by(address: username, password: password)
+      User.find_by(address: username, password: password.encrypt)
     end
 
     def main_menu
@@ -169,7 +169,7 @@ class CLI
     def update_total(order_to_edit, new_servings)
       order_to_edit.total = new_servings.to_f * 5
     end
-    
+
     def order_timestamp
       # 
       Time.now.to_s.split(" ")[0..1].join(" ")
