@@ -1,14 +1,21 @@
 class Article < ActiveRecord::Base
     has_many :comments, dependent: :destroy
-    belongs_to :user# fix with join class between user/article (for writing their own articles)
+    belongs_to :user
    
-    #used to seed database
+    #used to populates database from API
     def self.populate
         api = Api.new
         api_data = api.formatdata
-        api_data.map{|article| Article.create(article)}
+        api_data.map do |article| 
+            if Article.find_by(name: article[:name]) == nil #Check for duplicates, API only refreshes every 20 minutes or so.
+                if !article[:content].to_s.strip.empty? #Ignores empty articles.
+                Article.create(article)
+                else
+                    return false
+                end
+            end
+        end
     end
-
 
     def self.map_names
         all.map do |article|
@@ -40,5 +47,17 @@ class Article < ActiveRecord::Base
     def self.find_article_by_name(selection)
         find_by(name: selection)
     end
+
+    def self.most_read_articles
+        max_read = all.maximum("read_count")
+        all.select{|article| article.read_count == max_read}
+    end
+
+    def self.most_commented_articles
+        max_comments = all.max{|article| article.comments.length}.comments.length
+        all.select{|article| article.comments.length == max_comments}
+    end
+
+    
 
 end
