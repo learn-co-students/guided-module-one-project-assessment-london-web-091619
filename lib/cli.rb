@@ -2,8 +2,8 @@ class Cli
     @@prompt = TTY::Prompt.new
     #####################################
     #Welcome
-    def welcome
-        print_logo(0.1)
+    def welcome(sleep_value = 0.1)
+        print_logo(sleep_value)
         puts "Welcome to tl;dr news service!"
         selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")    
         case selection
@@ -25,12 +25,13 @@ class Cli
 
     #Sign up
     def validate_sign_up(user_name, password)
-        if !check_for_duplicate_usernames(user_name)
+        if !check_for_duplicate_usernames(user_name) && validate_input(user_name) && validate_input(password)
             create_new_user(user_name, password)
             set_current_user(user_name, password)
             main_menu
         else 
-            sign_up_prompt 
+            @@prompt.keypress("Usernames and passwords cannot be empty!")
+            welcome(0) 
         end
     end
 
@@ -59,8 +60,8 @@ class Cli
         if @current_user
             main_menu
         else 
-            puts "We could not find your user! Please try again" 
-            login
+            @@prompt.keypress("We could not find your user! Please try again or sign up!")
+            welcome(0)
         end
     end
 
@@ -100,7 +101,10 @@ class Cli
     #Choose an article
     def select_article
         print_logo
-        selection = @@prompt.select("Select an article please!", Article.map_names)
+        selection = @@prompt.select("Select an article please!", Article.map_names << "Main menu")
+        if selection == "Main menu"
+            main_menu
+        end
         article = Article.find_article_by_name(selection)
         print_article(article)
     end
@@ -134,7 +138,11 @@ class Cli
     def make_new_comment(article)
         comment=@@prompt.ask("enter your comment: ")
         refresh_user
+        if validate_input(comment)
         Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
+        else
+            @@prompt.keypress("You cant input an empty comment!")
+        end
     end
 
     #####################################
@@ -174,8 +182,12 @@ class Cli
     #Update comment
     def update_comment(comment)
         comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
+        if validate_input(comment_update)
         comment.update(comment_content: comment_update)
         refresh_user
+        else
+            @@prompt.keypress("You cannot enter an empty comment!")
+        end
     end
 
     #Delete comment
@@ -190,7 +202,12 @@ class Cli
         article_name = @@prompt.ask("Name your article: ")
         article_content = @@prompt.ask("Write your article: ")
         refresh_user
-        create_new_article(article_name, article_content)
+        if validate_input(article_name) && validate_input(article_content)
+            create_new_article(article_name, article_content)
+        else
+            @@prompt.keypress("You cannot enter an empty article name or content!")
+            main_menu
+        end
     end
 
     #Create Article
@@ -233,9 +250,14 @@ class Cli
     #update article
     def update_article(article)
         article_update = @@prompt.ask("article: ", value: article.content)
+        if validate_input(article_update)
         article.update(content: article_update)
         refresh_user
         user_articles_menu(article.name)
+        else
+            @@prompt.keypress("You cannot enter an empty article!")
+            main_menu
+        end
     end
 
     #delete article
@@ -279,7 +301,7 @@ class Cli
         #users article count
         puts "\nYour Article Count:"
         article_count
-        
+
         @@prompt.keypress("Press any key to go back to the menu")
         main_menu
     end
@@ -340,23 +362,23 @@ class Cli
     #Print logo, called on every menu screen
     def print_logo(sleep_value = 0)
         clear_console
-        puts"        ███      ▄█       ████████▄     ▄████████" 
+        puts"        ███      ▄█       ████████▄     ▄████████    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value)
-    puts"    ▀█████████▄ ███       ███   ▀███   ███    ███" 
+    puts"    ▀█████████▄ ███       ███   ▀███   ███    ███    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value)
-    puts"       ▀███▀▀██ ███       ███    ███   ███    ███"
+    puts"       ▀███▀▀██ ███       ███    ███   ███    ███    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value) 
-    puts"        ███   ▀ ███       ███    ███  ▄███▄▄▄▄██▀" 
+    puts"        ███   ▀ ███       ███    ███  ▄███▄▄▄▄██▀    ".colorize(:color => :white, :background => :light_black) 
     sleep(sleep_value)
-    puts"        ███     ███       ███    ███ ▀▀███▀▀▀▀▀"
+    puts"        ███     ███       ███    ███ ▀▀███▀▀▀▀▀      ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value)   
-    puts"        ███     ███       ███    ███ ▀███████████"
+    puts"        ███     ███       ███    ███ ▀███████████    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value) 
-    puts"        ███     ███▌    ▄ ███   ▄███   ███    ███"
+    puts"        ███     ███▌    ▄ ███   ▄███   ███    ███    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value) 
-    puts"       ▄████▀   █████▄▄██ ████████▀    ███    ███"
+    puts"       ▄████▀   █████▄▄██ ████████▀    ███    ███    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value) 
-    puts"                ▀                      ███    ███"
+    puts"                ▀                      ███    ███    ".colorize(:color => :white, :background => :light_black)
     sleep(sleep_value) 
     end
 
@@ -374,7 +396,7 @@ class Cli
 
     #Validates input
     def validate_input(input)
-        input.to_s.strip.empty? #Validate all inputs
+        !input.to_s.strip.empty? #Validate all inputs
     end
 
     end
