@@ -34,6 +34,13 @@ end
     rating: rand(1.0..5.0).round(1),
     content: Faker::Restaurant.review
   )
+end
 
+random_reviews_for_customers = ["Good", "Bad", "Ugly"]
+Review.all.each do |review| 
+review.content_for_customers =random_reviews_for_customers.sample
+review.rating_for_customers = rand(1.0..5.0).round(1)
+review.save
 
 end
+

@@ -61,10 +61,14 @@ class CLI
   end
 
   def read_customer_reviews
-    puts @user.reviews_for_prompt
-    @@prompt.select("", "Exit")
-    puts "Thank you for using our app!"
+    list_customer_reviews =  @@prompt.select("", @user.reviews_for_prompt)
+     confirmation = @@prompt.select("Leave a review for customer", "Yes", "No")
+     if confirmation == "Yes"
+        write_review_for_customer(list_customer_reviews) #restaurant is able to review
+     else 
+        restaurant_menu  #takes them back to restaurant menu 
   end
+end
 
   def menu_selection(selection)
     case selection
@@ -179,4 +183,13 @@ class CLI
     # todo: two-step review choice (first choose restaurant, then choose review)
     @@prompt.select(message, @user.reviews_for_prompt)
   end
+
+  def write_review_for_customer(restaurant_obj)
+    rating = @@prompt.slider("Rating", max: 5, min: 0, step: 0.5, default: 2.5, format: "|:slider| %.1f")
+    content = @@prompt.ask("Please write a review:")
+    
+    restaurant_obj.update(:rating_for_customers => rating, :content_for_customers => content)
+    
+    restaurant_menu
+    end
 end

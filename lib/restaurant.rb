@@ -10,12 +10,18 @@ class Restaurant < ActiveRecord::Base
     random_names.uniq
   end
 
-  def reviews_for_prompt
-    review_data = ""
-    reviews.each do |review|
-      review_data += "\n#{review.user.name} | #{review.rating} #{'*' * review.rating.round}\n#{review.content}\n"
-    end
+  # def reviews_for_prompt
+  #   review_data = ""
+  #   reviews.each do |review|
+  #     review_data += "\n#{review.user.name} | #{review.rating} #{'*' * review.rating.round}\n#{review.content}\n"
+  #   end
+  # end
 
-    review_data
+  def reviews_for_prompt
+    reviews.each_with_object({}) do |review, obj|
+      string = "#{review.user.name} | #{review.rating} #{'*' * review.rating.round}\n#{review.content}\n\n"
+      obj[string] = review
+      # binding.pry
+    end
   end
 end
