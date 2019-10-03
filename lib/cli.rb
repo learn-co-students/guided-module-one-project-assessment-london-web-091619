@@ -73,10 +73,11 @@ class Cli
     #Main Menu 
     def main_menu
         print_logo
-       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Get fresh articles", "Exit")
+       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Get fresh articles","Statistics", "Exit")
         case selection 
         when "choose an article"
             article = select_article
+            increment_article_count(article)
             comment_menu(article)
         when "View comments"
             view_comments
@@ -88,6 +89,8 @@ class Cli
         when "Get fresh articles"
             get_fresh_articles
             main_menu
+        when "Statistics"
+            get_statistics
         when "Exit"
             abort("Goodbye!")
         end
@@ -100,6 +103,11 @@ class Cli
         selection = @@prompt.select("Select an article please!", Article.map_names)
         article = Article.find_article_by_name(selection)
         print_article(article)
+    end
+
+    def increment_article_count(article)
+        article.increment!(:read_count)
+        refresh_user
     end
 
     ##
@@ -137,7 +145,7 @@ class Cli
             user_comments = @current_user.map_comment_names
             selection = @@prompt.select("Select a comment to edit/delete", user_comments << "Main menu")
             if !is_main_menu?(selection)
-                selected_comment = Comment.find_by(comment_content: selection)
+                selected_comment = Comment.find_by(comment_content: selection.split("... ").last)
                 manage_comments(selected_comment)
                 view_comments
             end
@@ -247,6 +255,75 @@ class Cli
     def get_fresh_articles #API has a daily limit to how often you can use it, so we will keep this manual.
         Article.populate
         @@prompt.keypress("You are up to date!")
+    end
+
+    #####################################
+    #Get statistics
+    def get_statistics
+        print_logo
+        #most read article
+        puts "\nMost Read Article(s):"
+        most_read_article
+        #most commented article
+        puts "\nMost Commented Article(s):"
+        most_commented_article
+        #user with most comments
+        puts "\nUser(s) With The Most Comments:"
+        users_most_comments
+        #user with most articles
+        puts "\nUser(s) With The Most Articles:"
+        users_most_articles
+        #users comment count
+        puts "\nYour Comment Count:"
+        comment_count
+        #users article count
+        puts "\nYour Article Count:"
+        article_count
+        
+        @@prompt.keypress("Press any key to go back to the menu")
+        main_menu
+    end
+
+    #Most read article
+    def most_read_article
+        articles = Article.most_read_articles
+        formatted_articles = ""
+        articles.each{|article|  formatted_articles +="#{article.name}: #{article.read_count} view(s)\n"}
+        puts formatted_articles
+    end
+
+    #Most commented article
+    def most_commented_article
+        articles = Article.most_commented_articles
+        formatted_article = ""
+        articles.each{|article| formatted_article += "#{article.name}: #{article.comments.length} comment(s)\n"}
+        puts formatted_article
+    end
+
+    #Users most comments
+    def users_most_comments
+        users = User.commented_most
+        formatted_comments = ""
+        users.each{|user| formatted_comments += "#{user.user_name}: #{user.comments.length} comment(s)\n"}
+        puts formatted_comments
+    end
+
+    #Users most articles
+    def users_most_articles
+        users = User.authored_most
+        formatted_articles = ""
+        users.each{|user| formatted_articles += "#{user.user_name}: #{user.articles.count} article(s)\n"}
+        puts formatted_articles
+    end
+
+    #users comment count
+    def comment_count
+        puts "#{@current_user.comment_amount} comment(s)\n"
+    end
+
+    #users comment count
+    def article_count
+        puts "#{@current_user.article_amount} article(s)\n"
     end
 
     #Misc methods

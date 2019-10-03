@@ -48,4 +48,16 @@ class Article < ActiveRecord::Base
         find_by(name: selection)
     end
 
+    def self.most_read_articles
+        max_read = all.maximum("read_count")
+        all.select{|article| article.read_count == max_read}
+    end
+
+    def self.most_commented_articles
+        max_comments = all.max{|article| article.comments.length}.comments.length
+        all.select{|article| article.comments.length == max_comments}
+    end
+
+    
+
 end
