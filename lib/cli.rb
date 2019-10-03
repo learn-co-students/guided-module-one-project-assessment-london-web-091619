@@ -17,7 +17,7 @@ class CLI
   end
 
   def user_login
-    email = @@prompt.ask("Please enter your email address:")
+    email = @@prompt.ask("Please enter your email address:") {|q| q.validate :email, "Invalid email address"}
     return User.find_by(email: email) if User.find_by(email: email)
 
     failure_message = "We couldn't find a customer account with that email address. Would you like to try again or register a new account?"
@@ -88,7 +88,10 @@ end
   end
 
   def search_for_restaurant
-    query = @@prompt.ask("What are you looking for?")
+    query = @@prompt.ask("What are you looking for?") do |q| 
+        q.validate(/.+/)
+        q.messages[:valid?] = "Input cannot be empty"
+    end
     restaurants = @@api.search_by_name(query)
     if restaurants
       restaurant = @@prompt.select("", restaurants)
@@ -150,7 +153,10 @@ end
   def write_review(restaurant_name)
     restaurant = Restaurant.find_by(name: restaurant_name)
     rating = @@prompt.slider("Rating", max: 5, min: 0, step: 0.5, default: 2.5, format: "|:slider| %.1f")
-    content = @@prompt.ask("Please write a review:")
+    content = @@prompt.ask("Please write a review:")do |q| 
+        q.validate(/.+/)
+        q.messages[:valid?] = "Input cannot be empty"
+    end
 
     Review.create(
       rating: rating,
@@ -164,7 +170,10 @@ end
     chosen_review = choose_user_review("Which review would you like to update?")
     # default value should be previous value
     chosen_review.rating = @@prompt.slider("Rating", max: 5, min: 0, step: 0.5, default: 2.5, format: "|:slider| %.1f")
-    chosen_review.content = @@prompt.ask("Please write a new review:")
+    chosen_review.content = @@prompt.ask("Please write a new review:") do |q| 
+        q.validate(/.+/)
+        q.messages[:valid?] = "Input cannot be empty"
+    end
     chosen_review.save
 
     user_menu
@@ -186,7 +195,10 @@ end
 
   def write_review_for_customer(restaurant_obj)
     rating = @@prompt.slider("Rating", max: 5, min: 0, step: 0.5, default: 2.5, format: "|:slider| %.1f")
-    content = @@prompt.ask("Please write a review:")
+    content = @@prompt.ask("Please write a review:") do |q| 
+        q.validate(/.+/)
+        q.messages[:valid?] = "Input cannot be empty"
+    end
     
     restaurant_obj.update(:rating_for_customers => rating, :content_for_customers => content)
     
