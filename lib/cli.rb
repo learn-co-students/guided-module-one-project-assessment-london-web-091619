@@ -17,8 +17,7 @@ class Cli
     ###
     #Sign up 
     def sign_up_prompt
-        print_logo
-
+        print_logo        
         user_name = @@prompt.ask("Enter a unique username: ")
         password = @@prompt.mask("Enter a secure password: ")
 
@@ -53,8 +52,8 @@ class Cli
         if @current_user
             main_menu
         else 
-            puts "We could not find your user! Please try again" 
-            login
+            @@prompt.keypress("We could not find your user! Please press enter to try again") 
+            welcome
         end
     end
 
