@@ -5,33 +5,40 @@ class Cli
     def welcome
         print_logo(0.1)
         puts "Welcome to tl;dr news service!"
-    selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")
-    case selection
-    when "Log In"
-        login
-    when "Sign Up"
-        sign_up_prompt
-    end
+        selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")    
+        case selection
+            when "Log In"
+                login
+            when "Sign Up"
+                sign_up_prompt
+        end
     end
 
     ###
     #Sign up 
     def sign_up_prompt
-        print_logo        
+        print_logo
         user_name = @@prompt.ask("Enter a unique username: ")
         password = @@prompt.mask("Enter a secure password: ")
-
-        sign_up(user_name, password)
+        validate_sign_up(user_name, password)
     end
 
     #Sign up
-    def sign_up(user_name, password)
+    def validate_sign_up(user_name, password)
         if !check_for_duplicate_usernames(user_name)
-            User.create(user_name: user_name, password: password)
+            create_new_user(user_name, password)
             set_current_user(user_name, password)
             main_menu
-        else sign_up_prompt end
+        else 
+            sign_up_prompt 
+        end
     end
+
+    #Create new user
+    def create_new_user(user_name, password)
+        User.create(user_name: user_name, password: password)
+    end
+
 
     #Check duplicate usernames
     def check_for_duplicate_usernames(user_name)
@@ -66,7 +73,7 @@ class Cli
     #Main Menu 
     def main_menu
         print_logo
-       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Exit")
+       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Get fresh articles", "Exit")
         case selection 
         when "choose an article"
             article = select_article
@@ -78,6 +85,9 @@ class Cli
             input_new_article
         when "View your articles"
             select_users_articles
+        when "Get fresh articles"
+            get_fresh_articles
+            main_menu
         when "Exit"
             abort("Goodbye!")
         end
@@ -96,20 +106,24 @@ class Cli
     #Comment Menu
     def comment_menu(article)
         selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
-           if selection=="Back"  
-               main_menu
-           end
-           if selection=="Make Comment"
-               make_comment(article)
-               refresh_user
-               print_article(article)
-               comment_menu(article)
-               
-           end 
-       end
+        if selection=="Back"  
+            main_menu
+        end
+        if selection=="Make Comment"
+            make_comment_menu(article)
+        end 
+    end
+
+    #make_comment_menu
+    def make_comment_menu(article)
+        make_new_comment(article)
+        refresh_user
+        print_article(article)
+        comment_menu(article)
+    end
 
     #Make comment
-    def make_comment(article)
+    def make_new_comment(article)
         comment=@@prompt.ask("enter your comment: ")
         refresh_user
         Comment.create(comment_content: comment, user_id: @current_user.id, article_id: article.id )
@@ -141,16 +155,25 @@ class Cli
         selection=@@prompt.select("How would you like to manage your comment?","Go to article","Update comment", "Delete comment")
         case selection
         when "Go to article"
-            print_article(comment.article)
-            comment_menu(comment.article)
+            go_to_article(comment.article)
         when "Update comment"
-            comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
-            comment.update(comment_content: comment_update)
-            refresh_user
+            update_comment(comment)
         when "Delete comment"
-            comment.destroy
-            refresh_user
+            delete_comment(comment)
         end
+    end
+
+    #Update comment
+    def update_comment(comment)
+        comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
+        comment.update(comment_content: comment_update)
+        refresh_user
+    end
+
+    #Delete comment
+    def delete_comment(comment)
+        comment.destroy
+        refresh_user
     end
 
     #####################################
@@ -173,7 +196,7 @@ class Cli
      #View users articles
      def select_users_articles
         if @current_user.articles != []
-        selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
+            selection = @@prompt.select("Select one of the articles you have written", @current_user.map_users_articles_names << "Main menu")
             if !is_main_menu?(selection)
             user_articles_menu(selection)
             end
@@ -186,29 +209,44 @@ class Cli
 
     ###
     #User articles Menu
-    def user_articles_menu(article)
+    def user_articles_menu(article_name)
         selection = @@prompt.select("How would you like to manage your arcticle?", "Go to article", "Update article", "Delete article")
-        article = Article.find_by(name: article)
-        
+        article = Article.find_article_by_name(article_name)
         case selection
         when "Go to article"
             go_to_article(article)
         when "Update article"
-            article_update = @@prompt.ask("article: ", value: article.content)
-            article.update(content: article_update)
-            refresh_user
-            user_articles_menu(article.name)
+            update_article(article)
         when "Delete article"
-            article.destroy
-            refresh_user
-            select_users_articles
+            delete_article(article)
         end
+    end
+
+    #update article
+    def update_article(article)
+        article_update = @@prompt.ask("article: ", value: article.content)
+        article.update(content: article_update)
+        refresh_user
+        user_articles_menu(article.name)
+    end
+
+    #delete article
+    def delete_article(article)
+        article.destroy
+        refresh_user
+        select_users_articles
     end
 
     #Go to article
     def go_to_article(article)
         print_article(article)
         comment_menu(article)
+    end
+
+    #####################################
+    def get_fresh_articles #API has a daily limit to how often you can use it, so we will keep this manual.
+        Article.populate
+        @@prompt.keypress("You are up to date!")
     end
 
     #Misc methods
@@ -257,7 +295,9 @@ class Cli
         article
     end
 
-
-    #input from user: what they would like to comment
-    #use active record to create a new instance of comment andassign the user id and comment to it
+    #Validates input
+    def validate_input(input)
+        input.to_s.strip.empty? #Validate all inputs
+    end
+    
     end
