@@ -17,7 +17,7 @@ class MusicApp
 
     # Matches login data with database
     def login
-        username = @@prompt.ask("In order to explore the fabulous world of MoodSic, just enter your username: ")
+        username = @@prompt.ask("In order to explore the fabulous world of MoodSic, just login with your username: ")
         password = @@prompt.mask("Followed by your password: ")
         User.find_by(username: username, password: password)
     end
@@ -25,16 +25,19 @@ class MusicApp
     # Gives the user the option to find songs or to go to the playlist menu
     def main_menu
         clear_terminal
-        selection = @@prompt.select("Hello again! Do you want to check out some new favourite tunes, or jump to your playlists?", "Bring the tunes in", "Playlists, obviously")
+        selection = @@prompt.select("Hello again! Do you want to check out some new favourite tunes, or jump to your playlists?", "Bring the tunes in", "Playlists, obviously", "Logout")
         if selection == "Bring the tunes in"
             songs_prompt
-        else 
+        elsif selection == "Playlists, obviously"
             playlists_prompt
+        else
+            exit 
         end
     end
     
     # Gives user the option to search for songs via genre or via mood
     def songs_prompt
+        clear_terminal
         selection = @@prompt.select("Do you fancy a specific genre, or are you in the mood for something?", "Let me browse through the genre", "I am moody, let me find the perfect songs", "-back-")
         if selection == "Let me browse through the genre"
             songs_by_genre
@@ -47,9 +50,10 @@ class MusicApp
     
     # Gives user the songs for the selected genre, or lets user go back to song menu
     def songs_by_genre
+        clear_terminal
         selection = @@prompt.select("Which genre do you fancy:", "rock", "pop", "indie", "electro", "-back-")
         if selection == "rock" || selection == "pop" || selection =="indie" || selection == "electro"
-            @songs_array = Song.find_songs_by_genre(selection).map { |songs| songs.title }
+            @songs_array = Song.song_title_genre(selection)
             puts "We think that you might like these songs:"
             puts @songs_array
             add_songs?
@@ -60,9 +64,10 @@ class MusicApp
 
     # Gives user the songs for the selected mood, or lets user go back to song menu
     def songs_by_mood 
+        clear_terminal
         selection = @@prompt.select("What is your mood:", "happy", "calm", "sad", "-back-")
         if selection == "happy" || selection == "calm" || selection == "sad"
-            @songs_array = Song.find_songs_by_mood(selection).map { |songs| songs.title }
+            @songs_array = Song.song_title_mood(selection)
             puts "We think that you might like these songs:"
             puts @songs_array
             add_songs?
@@ -97,7 +102,8 @@ class MusicApp
         songs_instances.each { |song| PlaylistSong.create(playlist_id: @user_playlist.id, song_id: song.id) }
         update_user
         puts "Wooohooo! You successfully created your playlist #{@playlist_title}!"
-        puts "Let's bring you back to the main menu. See ya!"
+        puts "Let's bring you back to the main menu!"
+        sleep(3)
         main_menu    
     end
 
@@ -161,6 +167,7 @@ class MusicApp
     # Puts out error message if no playlist in database and leads to song menu
     def playlist_not_existing
         puts "You don't have any playlists (yet). Find new songs to create a playlist with them!"
+        sleep(2)
         songs_prompt
     end
 
@@ -178,15 +185,6 @@ class MusicApp
     def clear_terminal
         system("clear")
     end
-
-    
-
-
-
-# Delete created playlists
-
-    # Strech: Allows to add only one song and delete only one song
-    # Strech: Sort playlist ASC or DESC etc.
 
 end
 

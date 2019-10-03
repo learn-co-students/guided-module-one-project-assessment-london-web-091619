@@ -9,6 +9,14 @@ class Song < ActiveRecord::Base
     def self.find_songs_by_mood(mood)
         self.all.select { |songs| songs.mood == mood }
     end
+
+    def self.song_title_genre(selection)
+        self.all.find_songs_by_genre(selection).map { |songs| songs.title }
+    end
+
+    def self.song_title_mood(selection)
+        self.all.find_songs_by_mood(selection).map { |songs| songs.title }
+    end 
     
 end
 
