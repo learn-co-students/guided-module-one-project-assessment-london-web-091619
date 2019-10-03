@@ -5,136 +5,183 @@ class MusicApp
     # Runs the app, welcomes user and prompts user to log in, if successful, shows main menu, if not, prompts re-try
     def run
         clear_terminal
-        puts "
-@@@@@@@@@@    @@@@@@    @@@@@@   @@@@@@@    @@@@@@   @@@   @@@@@@@  
-@@@@@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@   @@@  @@@@@@@@  
-@@! @@! @@!  @@!  @@@  @@!  @@@  @@!  @@@  !@@       @@!  !@@       
-!@! !@! !@!  !@!  @!@  !@!  @!@  !@!  @!@  !@!       !@!  !@!       
-@!! !!@ @!@  @!@  !@!  @!@  !@!  @!@  !@!  !!@@!!    !!@  !@!       
-!@!   ! !@!  !@!  !!!  !@!  !!!  !@!  !!!   !!@!!!   !!!  !!!       
-!!:     !!:  !!:  !!!  !!:  !!!  !!:  !!!       !:!  !!:  :!!       
-:!:     :!:  :!:  !:!  :!:  !:!  :!:  !:!      !:!   :!:  :!:       
-:::     ::   ::::: ::  ::::: ::   :::: ::  :::: ::    ::   ::: :::  
- :      :     : :  :    : :  :   :: :  :   :: : :    :     :: :: : 
-        ".light_blue
-        puts "Welcome to Moodsic! Discover songs you really like!".light_blue.bold
+        puts "WELCOME TO MOODSIC! DISCOVER A BUNCH OF SONGS YOU REALLY LIKE!".light_blue.bold
         @current_user = login
         if @current_user 
             main_menu
         else
-            puts "Ooops, we couldn't find you! Let's start your music journey again!".light_red
+            puts "Ooops, we couldn't find you! Let's start your music journey again!"
             run
         end
     end
 
-    # Checks if user is in database by looking for username and password
+    # Matches login data with database
     def login
-        username = @@prompt.ask("Continue exploring by entering your username: ")
+        username = @@prompt.ask("In order to explore the fabulous world of MoodSic, just enter your username: ")
         password = @@prompt.mask("Followed by your password: ")
         User.find_by(username: username, password: password)
     end
 
-    # Gives the user the option to look for new songs, see playlist, update or delete playlist
+    # Gives the user the option to find songs or to go to the playlist menu
     def main_menu
-        selection = @@prompt.select("Howdy! What do you want to do now?", "...I want to find new songs", "...I want to see my playlists", "...I want to update my playlist titles", "...I want to delete my playlist")
-        if selection == "...I want to find new songs"
-            find_new_songs
-        elsif selection == "...I want to see my playlists"
-            show_playlists
-        elsif selection == "...I want to update my playlist titles"
-            update_playlist_title
-        else
-            delete_playlist
+        clear_terminal
+        selection = @@prompt.select("Hello again! Do you want to check out some new favourite tunes, or jump to your playlists?", "Bring the tunes in", "Playlists, obviously")
+        if selection == "Bring the tunes in"
+            songs_prompt
+        else 
+            playlists_prompt
         end
     end
     
-    # Gives the user the option to find new songs either by genre or by mood
-    def find_new_songs
-        selection = @@prompt.select("Do you fancy a specific genre, or are you in the mood for something?", "Let me browse through the genre", "I am moody, let me find the perfect songs")
-            if selection == "Let me browse through the genre"
-                choice1 = @@prompt.select("Which genre do you fancy:", "rock", "pop", "indie", "electro")
-                @songs_array = Song.find_songs_by_genre(choice1).map { |songs| songs.title }
-                puts @songs_array
-                add_songs?
-            else
-                choice2 = @@prompt.select("What is your mood:", "happy", "calm", "sad")
-                @songs_array = Song.find_songs_by_mood(choice2).map { |songs| songs.title }
-                puts @songs_array
-                add_songs?
-            end     
+    # Gives user the option to search for songs via genre or via mood
+    def songs_prompt
+        selection = @@prompt.select("Do you fancy a specific genre, or are you in the mood for something?", "Let me browse through the genre", "I am moody, let me find the perfect songs", "-back-")
+        if selection == "Let me browse through the genre"
+            songs_by_genre
+        elsif selection == "I am moody, let me find the perfect songs"
+            songs_by_mood 
+        else
+            main_menu
+        end     
+    end
+    
+    # Gives user the songs for the selected genre, or lets user go back to song menu
+    def songs_by_genre
+        selection = @@prompt.select("Which genre do you fancy:", "rock", "pop", "indie", "electro", "-back-")
+        if selection == "rock" || selection == "pop" || selection =="indie" || selection == "electro"
+            @songs_array = Song.find_songs_by_genre(selection).map { |songs| songs.title }
+            puts "We think that you might like these songs:"
+            puts @songs_array
+            add_songs?
+        else
+            songs_prompt
+        end
     end
 
-    # Allows the user to decide whether to add songs to playlist or not
+    # Gives user the songs for the selected mood, or lets user go back to song menu
+    def songs_by_mood 
+        selection = @@prompt.select("What is your mood:", "happy", "calm", "sad", "-back-")
+        if selection == "happy" || selection == "calm" || selection == "sad"
+            @songs_array = Song.find_songs_by_mood(selection).map { |songs| songs.title }
+            puts "We think that you might like these songs:"
+            puts @songs_array
+            add_songs?
+        else
+            songs_prompt
+        end
+    end
+
+    # Allows the user to decide whether to create a playlist with the listed songs or not
     def add_songs?
-        selection = @@prompt.select("Do you love those songs and want to add them to your playlist?", "Yes, definitely loving them", "Nah, I want to continue browsing")
+        selection = @@prompt.select("Do you love those songs (as much as we do) and want to have them in a playlist?", "Yes, definitely loving them", "Nah, I want to continue browsing", "-back-")
             if selection == "Yes, definitely loving them"
                 create_playlist
+            elsif selection == "Nah, I want to continue browsing"
+                songs_prompt
             else
-                find_new_songs
+                main_menu
             end    
     end
 
-    # Allows the user to create a new playlist
+    # Allows the user to create a playlist with a title
     def create_playlist
         @playlist_title = @@prompt.ask("Your playlist title should be: ")
         user_id = @current_user.id
         @user_playlist = Playlist.create(user_id: user_id, title: @playlist_title)
-        save_songs
+        save_playlist
     end
     
-    # Allows the user to save the songs to the newly created playlist
-    def save_songs
+    # Allows the user to save the named playlist with the found songs
+    def save_playlist
         songs_instances = @songs_array.map { |title| Song.find_by(title: title) }
         songs_instances.each { |song| PlaylistSong.create(playlist_id: @user_playlist.id, song_id: song.id) }
+        update_user
         puts "Wooohooo! You successfully created your playlist #{@playlist_title}!"
+        puts "Let's bring you back to the main menu. See ya!"
         main_menu    
     end
 
-    # Allows the user to view their playlists (if they are having any)
-    def show_playlists
-        @playlist_list = @current_user.all_playlist_titles
-        if @current_user.all_playlist_titles.empty?
-            puts "You don't have any playlists (yet). Find new songs to create a playlist with them!".light_red
-            find_new_songs
+    # Gives user the option to view playlists, rename or delete a playlist
+    def playlists_prompt
+        selection = @@prompt.select("Your playlists, your choice!", "Let me view all my playlists", "I am older and wiser now - let me rename my playlist", "Even older and wiser - let me get rid of a playlist", "-back-")
+        if selection == "Let me view all my playlists"
+            view_playlists
+        elsif selection == "I am older and wiser now - let me rename my playlist"
+            update_playlist_title
+        elsif selection == "Even older and wiser - let me get rid of a playlist"
+            delete_playlist
         else
-            puts @playlist_list
-            selection = @@prompt.select("Do you want to rename one of your playlists?", "Absolutely", "Nope")
-                if selection == "Absolutely"
-                update_playlist_title
-            else
-                puts "Okidoki, let's just go back to the main menu then"
-                main_menu
-            end
-        end
+            main_menu
+        end  
     end
 
+    # Shows playlist or tells user that there are no playlists yet, with leading user to song menu
+    def view_playlists
+        playlist_existing
+        if @current_user.all_playlist_titles.empty?
+            playlist_not_existing
+        else
+            puts @playlist_list
+            puts "Looking great! What do you want to do now?"
+            playlists_prompt
+        end
+    end
+ 
     # Allows the user to change the playlist title
     def update_playlist_title
-        chosen_playlist = @@prompt.select("Which one of your playlists do you want to rename?", @current_user.all_playlist_titles)
-        new_playlist_title = @@prompt.ask("What's the new title supposed to be?" )
-        playlist_to_change = Playlist.find_by(title: chosen_playlist) 
-        playlist_to_change.update(title: new_playlist_title)
-        @current_user = User.find(@current_user.id)
-        puts "#{new_playlist_title} is looking sick now!"
-        main_menu
+        playlist_existing
+        if @current_user.all_playlist_titles.any?
+            chosen_playlist = @@prompt.select("Which one of your playlists do you want to rename?", @current_user.all_playlist_titles)
+            new_playlist_title = @@prompt.ask("What's the new title supposed to be? ")
+            playlist_to_change = Playlist.find_by(title: chosen_playlist) 
+            playlist_to_change.update(title: new_playlist_title)
+            update_user        
+            puts "#{new_playlist_title} is looking sick now!"
+            playlists_prompt
+        else
+            playlist_not_existing
+        end 
     end
 
     # Allows the user to delete playlist
     def delete_playlist
-        chosen_playlist = @@prompt.select("Which one of your playlists do you want to delete?", @current_user.all_playlist_titles)
-        playlist_to_delete = Playlist.find_by(title: chosen_playlist)
-        playlist_to_delete.destroy
-        @current_user = User.find(@current_user.id)
-        puts "Bye bye!"
-        main_menu     
+        playlist_existing
+        if @current_user.all_playlist_titles.any?
+            chosen_playlist = @@prompt.select("Which one of your playlists do you want to delete?", @current_user.all_playlist_titles)
+            playlist_to_delete = Playlist.find_by(title: chosen_playlist)
+            playlist_to_delete.destroy
+            update_user
+            puts "Bye bye!"
+            playlists_prompt    
+        else
+            playlist_not_existing
+        end
     end
 
+    # Puts out error message if no playlist in database and leads to song menu
+    def playlist_not_existing
+        puts "You don't have any playlists (yet). Find new songs to create a playlist with them!"
+        songs_prompt
+    end
+
+    # Saves user's playlist to playlist variable
+    def playlist_existing
+        @playlist_list = @current_user.all_playlist_titles
+    end
+
+    # Updates user data after changes
+    def update_user
+        @current_user = User.find(@current_user.id)
+    end
+
+    # Clears the terminal to make it look nicer for the user
     def clear_terminal
         system("clear")
     end
 
+    
 
-    # Back method for every menu to have the option to go back to previous menu
+
 
 # Delete created playlists
 
