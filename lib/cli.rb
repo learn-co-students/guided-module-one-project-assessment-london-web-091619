@@ -42,7 +42,7 @@ class Cli
 
     #Check duplicate usernames
     def check_for_duplicate_usernames(user_name)
-    User.find_by(user_name: user_name) 
+        User.find_by(user_name: user_name) 
     end
     
     ###
@@ -73,7 +73,7 @@ class Cli
     #Main Menu 
     def main_menu
         print_logo
-       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Exit")
+       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Get fresh articles", "Exit")
         case selection 
         when "choose an article"
             article = select_article
@@ -85,6 +85,9 @@ class Cli
             input_new_article
         when "View your articles"
             select_users_articles
+        when "Get fresh articles"
+            get_fresh_articles
+            main_menu
         when "Exit"
             abort("Goodbye!")
         end
@@ -152,16 +155,25 @@ class Cli
         selection=@@prompt.select("How would you like to manage your comment?","Go to article","Update comment", "Delete comment")
         case selection
         when "Go to article"
-            print_article(comment.article)
-            comment_menu(comment.article)
+            go_to_article(comment.article)
         when "Update comment"
-            comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
-            comment.update(comment_content: comment_update)
-            refresh_user
+            update_comment(comment)
         when "Delete comment"
-            comment.destroy
-            refresh_user
+            delete_comment(comment)
         end
+    end
+
+    #Update comment
+    def update_comment(comment)
+        comment_update = @@prompt.ask("Comment: ", value: comment.comment_content)
+        comment.update(comment_content: comment_update)
+        refresh_user
+    end
+
+    #Delete comment
+    def delete_comment(comment)
+        comment.destroy
+        refresh_user
     end
 
     #####################################
@@ -231,6 +243,12 @@ class Cli
         comment_menu(article)
     end
 
+    #####################################
+    def get_fresh_articles #API has a daily limit to how often you can use it, so we will keep this manual.
+        Article.populate
+        @@prompt.keypress("You are up to date!")
+    end
+
     #Misc methods
     #Clears console, called on screen refresh
     def clear_console
@@ -277,7 +295,9 @@ class Cli
         article
     end
 
-
-    #input from user: what they would like to comment
-    #use active record to create a new instance of comment andassign the user id and comment to it
+    #Validates input
+    def validate_input(input)
+        input.to_s.strip.empty? #Validate all inputs
+    end
+    
     end
