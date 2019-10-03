@@ -23,5 +23,4 @@ class Review < ActiveRecord::Base
     self.park.size_in_acres
   end
 
-
 end
