@@ -59,8 +59,8 @@ class Cli
         if @current_user
             main_menu
         else 
-            puts "We could not find your user! Please try again" 
-            login
+            @@prompt.keypress("We could not find your user! Please press enter to try again") 
+            welcome
         end
     end
 
