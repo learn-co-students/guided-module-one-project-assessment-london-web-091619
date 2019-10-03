@@ -105,8 +105,8 @@ class Cli
     ##
     #Comment Menu
     def comment_menu(article)
-        selection=@@prompt.select("would you like to make a comment?","Back","Make Comment") 
-        if selection=="Back"  
+        selection=@@prompt.select("would you like to make a comment?","Main menu","Make Comment") 
+        if selection=="Main menu"  
             main_menu
         end
         if selection=="Make Comment"
@@ -299,5 +299,5 @@ class Cli
     def validate_input(input)
         input.to_s.strip.empty? #Validate all inputs
     end
-    
+
     end
