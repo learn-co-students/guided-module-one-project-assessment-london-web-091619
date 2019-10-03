@@ -17,17 +17,16 @@ class CliMethods
 
   def park_new_review
     @park_choice = Park.park_review_choice
-    binding.pry
     if_choice_is_exit
   end
 
   def get_id
-    @review_id = @review_selection.partition(".").first
-    @review_id_int = @review_id.to_i
+    @id = @review_selection.partition(".").first
+    @id_int = @id.to_i
   end
 
   def find_review_by_id
-    Review.find_by(id:@review_id_int)
+    Review.find_by(id:@id_int)
   end
 
   def average_rating
@@ -39,6 +38,13 @@ class CliMethods
     park_average_rating = park_ratings.sum.to_f / park_ratings.length.to_f
     puts "\n The average rating of this park is: #{park_average_rating.round(1)} stars.
     \n"
+    binding.pry
+  end
+
+  def top_3_rated
+    @park_average_rating
+    @park_ratings
+
   end
 
   def create_review_for_park

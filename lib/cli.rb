@@ -40,7 +40,7 @@ class CLI < CliMethods
   end
 
   def main_menu
-    @menu_selection = @@prompt.select("What would you like to do today?", "See my reviews.", "Review a park.", "Delete a review.", "Update a review.","See average ratings of parks.", "Exit.")
+    @menu_selection = @@prompt.select("What would you like to do today?", "See my reviews.", "Review a park.", "Delete a review.", "Update a review.","See average ratings of parks.", "Top 3 rated.","Exit.")
     menu_choice
   end
 
@@ -58,6 +58,8 @@ class CLI < CliMethods
       park_update_review
     when "See average ratings of parks."
       average_rating
+    when "Top 3 rated."
+      top_3_rated
     else
       if_choice_is_exit
     end

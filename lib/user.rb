@@ -19,7 +19,7 @@ has_many :parks, through: :reviews
   end
 
   def self.find_user_by_name_and_password
-    @main_menu_choice = @@prompt.select("Want to sign in or exit?", "Sign in.", "Exit.")
+    @main_menu_choice = @@prompt.select("Choose an option.", "Sign in.", "Exit.")
     if @main_menu_choice == "Sign in."
     @username = @@prompt.ask("Please enter your username: ")
     @password = @@prompt.mask("Please enter your password: ")
