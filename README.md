@@ -2,14 +2,14 @@
 ## Usage
 To install FOODEE, clone this repository with `git clone https://github.com/milenoss/FOODEE.git`, `cd` into it with `cd FOODEE` and run `bundle` to install dependencies.
 
-To seed the database, run `rake db:seed`. If you run into any errors here, you might need to try `bundle exec rake db:seed`.
+To build the database, run `rake db:migrate`. To seed the database, run `rake db:seed`. If you run into any errors here, you might need to try `bundle exec rake db:miragte` and `bundle exec rake db:seed`.
 
 FOODEE can then be run with `ruby bin/run.rb`.
 
 ## Features
 ### Customer
 - Register an account in the database
-- Search for restaurants, and get directions
+- Search for restaurants, and get directions (only available if you add Zomato and MapQuest API keys into `lib/auth.rb`)
 - Review a restaurant from the database
 - Delete and update your existing reviews
 
