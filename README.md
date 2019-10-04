@@ -9,7 +9,7 @@ FOODEE can then be run with `ruby bin/run.rb`.
 ## Features
 ### Customer
 - Register an account in the database
-- Search for restaurants, and get directions (only available if you add Zomato and MapQuest API keys into `lib/auth.rb`)
+- Search for restaurants, and get directions (only available if you add [Zomato](https://developers.zomato.com/api) and [MapQuest](https://developer.mapquest.com/) API keys into `lib/auth.rb`)
 - Review a restaurant from the database
 - Delete and update your existing reviews
 
