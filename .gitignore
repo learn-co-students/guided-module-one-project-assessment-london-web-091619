@@ -1,6 +1,6 @@
 .DS_Store
 .idea
-
+db/development.sqlite
 log
 node_modules
 out
