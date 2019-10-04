@@ -6,13 +6,16 @@ class CliMethods
   end
 
   def print_user_reviews
+    puts "You have #{@current_user.find_num_reviews} reviews."
+
+    puts "Average review given = #{@current_user.average_rating_for_user}"
     puts @current_user.all_user_reviews
   end
+
 
   def review_parks
     park_new_review
     review_prompt
-    create_review_validation
     create_review_for_park
   end
 
@@ -39,11 +42,8 @@ class CliMethods
     @review_selection = @@prompt.select("Select the park you would like to see the average rating for.", Park.all_park_ids, "Exit.")
     if_choice_is_exit
     get_id
-
     chosen_park = Park.find_by(id: get_id)
-
     park_ratings = chosen_park.reviews.map(&:rating)
-
     park_average_rating = park_ratings.sum.to_f / park_ratings.length.to_f
     puts "\n The average rating of this park is: #{park_average_rating.round(1)} stars.
     \n"
@@ -79,8 +79,9 @@ class CliMethods
   end
 
   def update_rating_validation
-    if @rating >= 0 && @rating <= 5 && @content && @rating = Integer
+    if @rating >= 0 && @rating <= 5 && @content
     find_review_by_id.update(content: @content,rating: @rating)
+    @current_user = User.find(@current_user.id)
     puts "Your review has been updated"
     else
     puts "IT MUST BE BETWEEN 0 & 5 STARS.
@@ -95,7 +96,6 @@ class CliMethods
     get_id
     review_prompt
     update_rating_validation
-    @current_user = User.find(@current_user.id)
     main_menu
   end
 end
