@@ -1,6 +1,6 @@
 # FOODEE
 ## Usage
-To install FOODEE, clone this repository with `git clone SOMETHING`, `cd` into it with `cd FOLDERNAME` and run `bundle` to install dependencies.
+To install FOODEE, clone this repository with `git clone https://github.com/milenoss/FOODEE.git`, `cd` into it with `cd FOODEE` and run `bundle` to install dependencies.
 
 To seed the database, run `rake db:seed`. If you run into any errors here, you might need to try `bundle exec rake db:seed`.
 
