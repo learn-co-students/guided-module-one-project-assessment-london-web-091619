@@ -10,6 +10,5 @@ class Comment < ActiveRecord::Base
     def comment_article_names
         article.name.split
     end
-
    
 end
