@@ -1,6 +1,7 @@
 class CLI
   @@prompt = TTY::Prompt.new
   @@api = API.new
+  @@auth = Auth.new
 
   def run
     puts ""
@@ -39,7 +40,12 @@ class CLI
   def user_menu
     refresh_user
 
-    options = ["Search for a restaurant", "Review a restaurant"]
+    if @@auth.zomato.eql?("ENTER YOUR ZOMATO API KEY HERE")
+      options = ["Review a restaurant"]
+    else
+      options = ["Search for a restaurant", "Review a restaurant"]
+    end
+
     options += ["Delete one of your reviews", "Update one of your reviews"] unless @user.reviews.empty?
     options << "Exit"
     selection = @@prompt.select("Hi #{@user.name}, how can we help you today?", options)
