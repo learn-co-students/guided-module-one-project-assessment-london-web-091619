@@ -101,12 +101,17 @@ class Cli
     #Choose an article
     def select_article
         print_logo
-        selection = @@prompt.select("Select an article please!", Article.map_names << "Main menu")
+        if Article.all != []
+            selection = @@prompt.select("Select an article please!", Article.map_names << "Main menu")
         if selection == "Main menu"
             main_menu
         end
-        article = Article.find_article_by_name(selection)
-        print_article(article)
+            article = Article.find_article_by_name(selection)
+            print_article(article)
+        else
+            @@prompt.keypress("There are no articles! Choose the 'Get fresh articles' option on the main menu!")
+            main_menu
+        end
     end
 
     def increment_article_count(article)

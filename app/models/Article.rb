@@ -24,6 +24,7 @@ class Article < ActiveRecord::Base
     end
 
     def prepare_article
+        if self.user == nil
         "
     Title: #{self.name}
     Content: #{self.content}
@@ -31,6 +32,17 @@ class Article < ActiveRecord::Base
         Comments
         --------
 "
+        else
+            "
+    Author: #{self.user.user_name}
+    Title: #{self.name}
+    Content: #{self.content}
+        --------
+        Comments
+        --------
+"
+        end
+
     end
 
     def show_article
