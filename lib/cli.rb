@@ -1,18 +1,20 @@
 class CLI
     @@prompt = TTY::Prompt.new
-    #make a run method to welcome user to the app
+    #make a run method to welcome user, and gives the option of signin or login
     def greeting
-        puts "Welcome to my Book Review App!"
+        puts "Welcome to my Book Review App!".on_blue
         choice = @@prompt.select("What would you like to do?", "> Signup", "> Login")
         if choice == "> Signup"
             signup
-            login
+            main_menu
         elsif choice == "> Login"
             @current_user = login
-            main_menu
-        else
-            puts "Sorry, we couldn't find those details. Please try again."
-            greeting
+            if @current_user != nil
+                main_menu
+            else
+                puts "Sorry, we couldn't find those details. Please try again.".red
+                greeting
+            end
         end
     end
 
@@ -20,7 +22,7 @@ class CLI
     def login
         username = @@prompt.ask("Username: ")
         password = @@prompt.mask("Password: ")
-        User.find_by(username: username, password: password)
+        return User.find_by(username: username, password: password)
     end
 
     #method for a new user to sign up with username and password
@@ -28,28 +30,34 @@ class CLI
         username = @@prompt.ask("Please enter a username: ")
         password = @@prompt.ask("Please enter a password: ")
         User.create(username: username, password: password)
+        @current_user = User.find_by(username: username, password: password)
     end
 
     def main_menu
         options = @@prompt.select("Please click one of the following options", 
         "> My Reviews", "> Create a new Book Review", "> Update a Review", "> Add a New Book", 
-        "> Delete a Review")
-        if options == "> My Reviews"
+        "> Delete a Review", "> Exit")
+        case options 
+        when  "> My Reviews"
             review_list
-        elsif options == "> Create a new Book Review"
+        when "> Create a new Book Review"
             review_book
-        elsif options == "> Update a Review"
+        when "> Update a Review"
             update_reviews
-        elsif options == "> Add a New Book"
+        when "> Add a New Book"
             add_new_book
-        else
+        when "> Delete a Review"
             delete_review
+        when "> Exit"
+            exit
         end
-        #main_menu
+        main_menu
     end
 
     #method for user to see all of their reviews
     def review_list
+        puts "You have written #{@current_user.num_of_reviews} reviews."
+        puts "Your average rating is: #{@current_user.average_rating}."
         puts @current_user.all_review_data 
     end
 
@@ -59,8 +67,8 @@ class CLI
         selected_book = Book.find_by(title: collection)
         content = @@prompt.ask("Please enter your review content: ")
         rating = @@prompt.slider('Rating', max: 5, step: 1)
-        Review.create(content: content, rating: rating, 
-            book_id: selected_book.id, user_id: @current_user.id)
+        Review.create(content: content, rating: rating, book_id: selected_book.id, user_id: @current_user.id)
+        @current_user = User.find_by(id: @current_user.id)
         puts "Your review has been submitted!"
     end
 
@@ -68,10 +76,11 @@ class CLI
     #method for the user to update their reviews
     def update_reviews
         selection = @@prompt.select("Which Review do you want updated?", @current_user.all_review_data)
-        selected_review = Review.find_by(id: selection.last.to_i)
+        selected_review = Review.find_by(id: selection.split.last.to_i)
         new_content = @@prompt.ask("Please update your review content: ")
         new_rating = @@prompt.slider('Rating', max: 5, step: 1)
         selected_review.update(content: new_content, rating: new_rating)
+        @current_user = User.find_by(id: @current_user.id)
         puts "Your review has been updated!"
     end
 
@@ -87,8 +96,9 @@ class CLI
     #method for the user to delete a review
     def delete_review
         removed = @@prompt.select("Which Review do you want to delete?", @current_user.all_review_data)
-        deleted_review = Review.find_by(id: removed.last.to_i)
+        deleted_review = Review.find_by(id: removed.split.last.to_i)
         deleted_review.destroy
+        @current_user = User.find_by(id: @current_user.id)
         puts "Review has been deleted!"
     end
 

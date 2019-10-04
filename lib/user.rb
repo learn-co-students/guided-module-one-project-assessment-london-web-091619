@@ -12,14 +12,14 @@ class User < ActiveRecord::Base
         end
     end
 
-    #method that returns usernames in descsending order
-    def self.ordered_users
-        all.order(username: :desc)
+    def num_of_reviews
+        self.reviews.count
     end
 
-    #method to find all the usernames
-    def self.find_by_username
-        all.select(:username)
+    def average_rating
+        status = self.reviews.map { |review| review.rating }.sum
+        average = status.to_f / num_of_reviews.to_f
+        average.round(2)
     end
 
 end
