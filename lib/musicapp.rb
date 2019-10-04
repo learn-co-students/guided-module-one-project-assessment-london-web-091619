@@ -6,20 +6,37 @@ class MusicApp
     def run
         clear_terminal
         puts "WELCOME TO MOODSIC! DISCOVER A BUNCH OF SONGS YOU REALLY LIKE!".light_blue.bold
-        @current_user = login
-        if @current_user 
-            main_menu
+        selection = @@prompt.select("If you're a MoodSic oldie, just log in with your details. If you're new to this, just create an account - it's that easy!", "Log in", "Sign up" )
+        if selection == "Log in"
+            login
         else
-            puts "Ooops, we couldn't find you! Let's start your music journey again!"
-            run
+            sign_up
         end
     end
 
     # Matches login data with database
     def login
-        username = @@prompt.ask("In order to explore the fabulous world of MoodSic, just login with your username: ")
+        username = @@prompt.ask("In order to explore the fabulous world of MoodSic, just log in with your username: ")
         password = @@prompt.mask("Followed by your password: ")
-        User.find_by(username: username, password: password)
+        @current_user = User.find_by(username: username, password: password)
+        if @current_user
+            sleep(2)
+            main_menu
+        else
+            puts "Ooops, we couldn't find you! Let's start your music journey again!"
+            sleep(1)
+            login
+        end
+    end
+
+    # Allows a new user to sign-up
+    def sign_up
+        username = @@prompt.ask("In order to explore the fabulous world of MoodSic, sign up with a username: ")
+        password = @@prompt.mask("Followed by a password: ")
+        @current_user = User.create(username: username, password: password)
+        puts "Great, welcome to the MoodSic family!"
+        sleep(2)
+        main_menu
     end
 
     # Gives the user the option to find songs or to go to the playlist menu
