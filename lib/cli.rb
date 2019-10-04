@@ -5,12 +5,14 @@ class Cli
     def welcome(sleep_value = 0.1)
         print_logo(sleep_value)
         puts "Welcome to tl;dr news service!"
-        selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up")    
+        selection = @@prompt.select("Log in or Sign up!", "Log In", "Sign Up", "Exit")    
         case selection
             when "Log In"
                 login
             when "Sign Up"
                 sign_up_prompt
+            when "Exit"
+                abort("Goodbye!")
         end
     end
 
@@ -74,9 +76,9 @@ class Cli
     #Main Menu 
     def main_menu
         print_logo
-       selection= @@prompt.select("Choose an option please!", "choose an article","View comments","Write an article","View your articles", "Get fresh articles","Statistics", "Exit")
+       selection= @@prompt.select("Choose an option please!", "Choose an article","View comments","Write an article","View your articles", "Get fresh articles","Statistics", "Log out", "Exit")
         case selection 
-        when "choose an article"
+        when "Choose an article"
             article = select_article
             increment_article_count(article)
             comment_menu(article)
@@ -92,6 +94,9 @@ class Cli
             main_menu
         when "Statistics"
             get_statistics
+        when "Log out"
+            @current_user = nil
+            welcome(0)
         when "Exit"
             abort("Goodbye!")
         end
