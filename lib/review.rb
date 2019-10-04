@@ -23,4 +23,12 @@ class Review < ActiveRecord::Base
     self.park.size_in_acres
   end
 
+  def park_content
+    self.park.content
+  end
+
+  def park_rating
+    self.park.rating
+  end
+
 end

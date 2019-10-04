@@ -12,6 +12,7 @@ class CliMethods
   def review_parks
     park_new_review
     review_prompt
+    create_review_validation
     create_review_for_park
   end
 
@@ -29,6 +30,11 @@ class CliMethods
     Review.find_by(id:@id_int)
   end
 
+  def review_prompt
+    @content = @@prompt.ask("Please enter content of review: ")
+    @rating = @@prompt.ask("Please enter rating of review (0-5 stars): ").to_i
+  end
+
   def average_rating
     @review_selection = @@prompt.select("Select the park you would like to see the average rating for.", Park.all_park_ids, "Exit.")
     if_choice_is_exit
@@ -38,13 +44,17 @@ class CliMethods
     park_average_rating = park_ratings.sum.to_f / park_ratings.length.to_f
     puts "\n The average rating of this park is: #{park_average_rating.round(1)} stars.
     \n"
-    binding.pry
   end
 
-  def top_3_rated
-    @park_average_rating
-    @park_ratings
-
+  def create_review_validation
+    if @rating >= 0 && @rating <= 5 && @content && @rating = Integer
+    find_review_by_id.update(content: @content,rating: @rating)
+    puts "Your review has been created"
+    else
+    puts "IT MUST BE BETWEEN 0 & 5 STARS.
+    \n"
+    review_prompt
+    end
   end
 
   def create_review_for_park
@@ -55,13 +65,8 @@ class CliMethods
     main_menu
   end
 
-  def review_prompt
-    @content = @@prompt.ask("Please enter content of review: ")
-    @rating = @@prompt.ask("Please enter rating of review (1-5): ")
-  end
-
   def park_delete_review
-    @review_selection = @@prompt.select("Select the park you would like to delete your review for.", @current_user.all_user_reviews, "Exit.")
+    @review_selection = @@prompt.select("Select the review you would like to delete.", @current_user.all_user_reviews, "Exit.")
     if_choice_is_exit
     get_id
     find_review_by_id.delete
@@ -70,13 +75,23 @@ class CliMethods
     main_menu
   end
 
+  def update_rating_validation
+    if @rating >= 0 && @rating <= 5 && @content && @rating = Integer
+    find_review_by_id.update(content: @content,rating: @rating)
+    puts "Your review has been updated"
+    else
+    puts "IT MUST BE BETWEEN 0 & 5 STARS.
+    \n"
+    review_prompt
+    end
+  end
+
   def park_update_review
     @review_selection = @@prompt.select("Select the park review you would like to update.", @current_user.all_user_reviews, "Exit.")
     if_choice_is_exit
     get_id
     review_prompt
-    find_review_by_id.update(content: @content,rating: @rating)
-    puts "Your review has been updated"
+    update_rating_validation
     @current_user = User.find(@current_user.id)
     main_menu
   end

@@ -1,5 +1,4 @@
 class CLI < CliMethods
-
   @@prompt = TTY::Prompt.new
 
   def logo_header
@@ -40,7 +39,7 @@ class CLI < CliMethods
   end
 
   def main_menu
-    @menu_selection = @@prompt.select("What would you like to do today?", "See my reviews.", "Review a park.", "Delete a review.", "Update a review.","See average ratings of parks.", "Top 3 rated.","Exit.")
+    @menu_selection = @@prompt.select("What would you like to do today?", "See my reviews.", "Review a park.", "Delete a review.", "Update a review.","See average ratings of parks.","Exit.")
     menu_choice
   end
 
@@ -58,8 +57,6 @@ class CLI < CliMethods
       park_update_review
     when "See average ratings of parks."
       average_rating
-    when "Top 3 rated."
-      top_3_rated
     else
       if_choice_is_exit
     end
@@ -70,13 +67,8 @@ class CLI < CliMethods
     if @park_selection == "Exit." || @review_selection == "Exit." || @menu_selection == "Exit."
       clear_console
       puts "Goodbye, don't forget to bring sunscreen!"
+      logo_header
       exit!
     end
   end
-
-
 end
-
-
-#work through refactoring ,average top 3 reviews, average rating, top 3, most reviews.
-#make console puts out links for the parks on google maps or wikipedia or something along those lines.
