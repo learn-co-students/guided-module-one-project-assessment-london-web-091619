@@ -144,6 +144,8 @@ class MusicApp
         if @current_user.all_playlist_titles.empty?
             playlist_not_existing
         else
+            puts "You have #{@current_user.number_of_playlists} playlist(s):"
+            puts "There are on average #{@current_user.average_songs_per_playlist} songs in your playlist."
             puts @playlist_list
             puts "Looking great! What do you want to do now?"
             playlists_prompt
