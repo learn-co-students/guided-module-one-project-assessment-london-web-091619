@@ -3,7 +3,6 @@ class Park < ActiveRecord::Base
   has_many :users, through: :reviews
   @@prompt = TTY::Prompt.new
 
-
   def self.all_park_ids
     all.map do |parks|
       "#{parks.id}. #{parks.name}"
@@ -22,5 +21,4 @@ class Park < ActiveRecord::Base
     end
     @park_choice = self.find_by(name: @park_selection)
   end
-
 end
