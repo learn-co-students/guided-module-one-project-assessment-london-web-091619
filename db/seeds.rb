@@ -15,17 +15,16 @@ end
   )
 end
 
-Restaurant.all.each do |restaurant| 
-  2.times do 
+Restaurant.all.each do |restaurant|
+  2.times do
     Review.create(
-    restaurant_id: restaurant.id,
-    user_id: User.all.sample.id,
-    rating: rand(1.0..5.0).round(1),
-    content: Faker::Restaurant.review
-  )
+      restaurant_id: restaurant.id,
+      user_id: User.all.sample.id,
+      rating: rand(1.0..5.0).round(1),
+      content: Faker::Restaurant.review
+    )
   end
 end
-  
 
 50.times do
   Review.create(
@@ -37,10 +36,8 @@ end
 end
 
 random_reviews_for_customers = ["Good", "Bad", "Ugly"]
-Review.all.each do |review| 
-review.content_for_customers =random_reviews_for_customers.sample
-review.rating_for_customers = rand(1.0..5.0).round(1)
-review.save
-
+Review.all.each do |review|
+  review.content_for_customers = random_reviews_for_customers.sample
+  review.rating_for_customers = rand(1.0..5.0).round(1)
+  review.save
 end
-
