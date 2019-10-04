@@ -13,7 +13,6 @@ class User < ActiveRecord::Base
   Content: #{review.content}\n"
 
       obj[string] = review
-      # binding.pry
     end
   end
 end
